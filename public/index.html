@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Gift Finder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #7c3aed;
+      --accept: #10b981;
+      --decline: #ef4444;
+      --shadow: 0 20px 60px rgba(0,0,0,0.18);
+      --text: #1f2937;
+      --muted: #6b7280;
+      --light: #9ca3af;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(140deg, #6366f1 0%, #a855f7 55%, #ec4899 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    /* ── SETUP SCREEN ── */
+    #setup {
+      background: #fff;
+      border-radius: 28px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.45s ease;
+    }
+
+    .setup-icon { font-size: 60px; text-align: center; display: block; margin-bottom: 14px; }
+
+    .setup-title {
+      font-size: 28px; font-weight: 800; color: var(--text);
+      text-align: center; margin-bottom: 6px;
+    }
+
+    .setup-sub {
+      color: var(--muted); text-align: center; font-size: 15px; margin-bottom: 30px;
+    }
+
+    .label {
+      display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+    }
+
+    .group { margin-bottom: 20px; }
+
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 14px;
+      font-size: 16px; color: var(--text); outline: none;
+      transition: border-color .2s;
+    }
+    input:focus { border-color: #a78bfa; }
+
+    .budget-row { display: grid; grid-template-columns: 1fr 24px 1fr; gap: 10px; align-items: center; }
+    .budget-row span { text-align: center; color: var(--light); font-size: 18px; }
+    .dollar { position: relative; }
+    .dollar::before {
+      content: '$'; position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%); color: var(--muted); pointer-events: none;
+    }
+    .dollar input { padding-left: 26px; }
+
+    .btn-main {
+      width: 100%; padding: 16px; margin-top: 8px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff; border: none; border-radius: 14px;
+      font-size: 17px; font-weight: 700; cursor: pointer;
+      transition: transform .15s, opacity .15s;
+    }
+    .btn-main:hover { transform: translateY(-1px); }
+    .btn-main:active { transform: translateY(0); opacity: .9; }
+
+    .error-msg { color: #ef4444; font-size: 13px; margin-top: 6px; display: none; }
+
+    /* ── CARD SCREEN ── */
+    #cards {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 400px;
+    }
+    #cards.active { display: flex; }
+
+    /* Stats bar */
+    .stats {
+      display: flex; gap: 20px;
+      background: rgba(255,255,255,.2);
+      backdrop-filter: blur(10px);
+      border-radius: 50px; padding: 10px 24px;
+    }
+    .stat { display: flex; align-items: center; gap: 6px; color: #fff; font-weight: 600; font-size: 15px; }
+
+    /* Stack illusion */
+    .stack {
+      position: relative; width: 100%; height: 480px;
+    }
+    .stack::before, .stack::after {
+      content: ''; position: absolute;
+      left: 0; right: 0; bottom: 0; border-radius: 24px;
+    }
+    .stack::before {
+      height: calc(100% - 12px);
+      background: rgba(255,255,255,.35);
+      transform: translateY(12px) scale(.95);
+      z-index: 1;
+    }
+    .stack::after {
+      height: calc(100% - 6px);
+      background: rgba(255,255,255,.6);
+      transform: translateY(6px) scale(.975);
+      z-index: 2;
+    }
+
+    /* Card */
+    .card {
+      position: absolute; inset: 0;
+      background: #fff; border-radius: 24px;
+      padding: 26px; box-shadow: var(--shadow);
+      z-index: 10; cursor: grab;
+      user-select: none; touch-action: none;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .card:active { cursor: grabbing; }
+
+    /* Swipe overlays */
+    .overlay {
+      position: absolute; inset: 0; border-radius: 24px;
+      display: flex; align-items: center; padding: 24px;
+      pointer-events: none; opacity: 0; z-index: 20;
+    }
+    .overlay-yes {
+      background: rgba(16,185,129,.08);
+      border: 3px solid var(--accept);
+      justify-content: flex-start;
+    }
+    .overlay-no {
+      background: rgba(239,68,68,.08);
+      border: 3px solid var(--decline);
+      justify-content: flex-end;
+    }
+    .overlay-label {
+      font-size: 32px; font-weight: 900; padding: 6px 14px;
+      border-radius: 10px; border: 4px solid;
+    }
+    .overlay-yes .overlay-label { color: var(--accept); border-color: var(--accept); transform: rotate(-15deg); }
+    .overlay-no  .overlay-label { color: var(--decline); border-color: var(--decline); transform: rotate(15deg); }
+
+    /* Card image */
+    .card-img {
+      width: calc(100% + 52px);
+      margin: -26px -26px 0;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 24px 24px 0 0;
+      background: #f3f4f6;
+    }
+    .card-img-placeholder {
+      width: calc(100% + 52px);
+      margin: -26px -26px 0;
+      height: 160px;
+      background: linear-gradient(135deg, #e9d5ff, #fce7f3);
+      border-radius: 24px 24px 0 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 64px;
+    }
+
+    /* Card content */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #f3f4f6; border-radius: 50px;
+      padding: 5px 12px; font-size: 13px; font-weight: 600;
+      color: var(--muted); width: fit-content;
+    }
+    .chip-emoji { font-size: 18px; }
+
+    .card-name { font-size: 22px; font-weight: 800; color: var(--text); line-height: 1.2; }
+
+    .card-desc { font-size: 14px; color: var(--muted); line-height: 1.6; flex: 1; }
+
+    .card-price { font-size: 22px; font-weight: 800; color: var(--primary); }
+
+    .amazon-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px; background: #ff9900; color: #fff;
+      border: none; border-radius: 14px; font-size: 15px; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: background .2s;
+    }
+    .amazon-btn:hover { background: #e88e00; }
+
+    /* Loading / error states */
+    .center-state {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; height: 100%; text-align: center;
+    }
+    .spinner {
+      width: 46px; height: 46px;
+      border: 4px solid #e5e7eb; border-top-color: var(--primary);
+      border-radius: 50%; animation: spin .75s linear infinite;
+    }
+    .state-text { color: var(--muted); font-size: 15px; }
+    .retry-btn {
+      padding: 10px 22px; background: var(--primary); color: #fff;
+      border: none; border-radius: 12px; font-size: 14px; font-weight: 600;
+      cursor: pointer; margin-top: 4px;
+    }
+
+    /* Action buttons */
+    .actions { display: flex; gap: 16px; width: 100%; }
+    .act-btn {
+      flex: 1; padding: 18px; border: none; border-radius: 20px;
+      font-size: 26px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .act-btn:disabled { opacity: .4; pointer-events: none; }
+    .act-btn:hover { transform: scale(1.05); }
+    .act-btn:active { transform: scale(.95); }
+    .act-btn span { font-size: 14px; font-weight: 600; }
+
+    .btn-no  { background: #fff; color: var(--decline); box-shadow: 0 8px 24px rgba(239,68,68,.2); }
+    .btn-yes { background: #fff; color: var(--accept);  box-shadow: 0 8px 24px rgba(16,185,129,.2); }
+
+    .hint { color: rgba(255,255,255,.65); font-size: 12px; }
+    .hint kbd { background: rgba(255,255,255,.2); border-radius: 4px; padding: 2px 6px; font-family: inherit; }
+
+    /* Saved button */
+    .saved-toggle {
+      background: rgba(255,255,255,.22); backdrop-filter: blur(10px);
+      border: none; color: #fff; padding: 11px 22px;
+      border-radius: 50px; font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: background .2s;
+    }
+    .saved-toggle:hover { background: rgba(255,255,255,.32); }
+
+    /* ── SAVED PANEL ── */
+    .backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.4);
+      z-index: 99; opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .backdrop.on { opacity: 1; pointer-events: auto; }
+
+    .panel {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-radius: 24px 24px 0 0;
+      box-shadow: 0 -20px 60px rgba(0,0,0,.18);
+      transform: translateY(100%);
+      transition: transform .38s cubic-bezier(.25,.46,.45,.94);
+      z-index: 100; max-height: 80vh; display: flex; flex-direction: column;
+    }
+    .panel.open { transform: translateY(0); }
+
+    .panel-head {
+      padding: 20px 24px; border-bottom: 1px solid #f3f4f6;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-title { font-size: 20px; font-weight: 800; color: var(--text); }
+    .close-btn {
+      background: #f3f4f6; border: none; border-radius: 50%;
+      width: 34px; height: 34px; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: var(--muted);
+    }
+
+    .saved-list { overflow-y: auto; flex: 1; padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+    .saved-item {
+      display: flex; gap: 14px; padding: 14px;
+      background: #f9fafb; border-radius: 16px; align-items: flex-start;
+    }
+    .item-emoji { font-size: 30px; flex-shrink: 0; }
+    .item-name { font-weight: 700; color: var(--text); margin-bottom: 3px; font-size: 15px; }
+    .item-price { font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 8px; }
+    .item-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #ff9900; color: #fff; padding: 5px 11px;
+      border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none;
+    }
+
+    .empty {
+      text-align: center; color: var(--light); padding: 36px 0;
+    }
+    .empty-icon { font-size: 44px; margin-bottom: 10px; }
+
+    .reset-btn {
+      margin: 12px 20px 20px; padding: 13px;
+      background: #f3f4f6; border: none; border-radius: 14px;
+      color: var(--muted); font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: background .2s;
+    }
+    .reset-btn:hover { background: #e5e7eb; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes cardIn {
+      from { opacity: 0; transform: scale(.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .card-in { animation: cardIn .28s ease; }
+
+    @media (max-width: 420px) {
+      #setup { padding: 30px 20px; }
+      .card-name { font-size: 19px; }
+      .hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup">
+  <span class="setup-icon">🎁</span>
+  <h1 class="setup-title">Gift Finder</h1>
+  <p class="setup-sub">Let AI find the perfect gift, one idea at a time</p>
+
+  <div class="group">
+    <label class="label" for="recipient">Who are you shopping for?</label>
+    <input type="text" id="recipient" placeholder="e.g. mom, best friend, coworker" maxlength="120" />
+    <p class="error-msg" id="err-recipient">Please describe who you're shopping for.</p>
+  </div>
+
+  <div class="group">
+    <label class="label">Budget range</label>
+    <div class="budget-row">
+      <div class="dollar"><input type="number" id="bmin" placeholder="25"  min="1" max="50000" value="25" /></div>
+      <span>→</span>
+      <div class="dollar"><input type="number" id="bmax" placeholder="100" min="1" max="50000" value="100" /></div>
+    </div>
+    <p class="error-msg" id="err-budget">Enter a valid range (min &lt; max).</p>
+  </div>
+
+  <button class="btn-main" id="start-btn">Find Gifts ✨</button>
+</div>
+
+<!-- CARDS -->
+<div id="cards">
+  <div class="stats">
+    <div class="stat">💚 <span id="cnt-saved">0</span> saved</div>
+    <div class="stat">💨 <span id="cnt-skip">0</span> skipped</div>
+  </div>
+
+  <div class="stack">
+    <div class="card" id="card">
+      <div class="center-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="act-btn btn-no"  id="btn-no"  onclick="decline()">✗ <span>Skip</span></button>
+    <button class="act-btn btn-yes" id="btn-yes" onclick="accept()">♥ <span>Save</span></button>
+  </div>
+
+  <p class="hint"><kbd>←</kbd> Skip &nbsp; <kbd>→</kbd> Save</p>
+
+  <button class="saved-toggle" onclick="openPanel()">🎁 Saved gifts (<span id="cnt-panel">0</span>)</button>
+</div>
+
+<!-- BACKDROP -->
+<div class="backdrop" id="backdrop" onclick="closePanel()"></div>
+
+<!-- SAVED PANEL -->
+<div class="panel" id="panel">
+  <div class="panel-head">
+    <h2 class="panel-title">Saved Gifts 💝</h2>
+    <button class="close-btn" onclick="closePanel()">✕</button>
+  </div>
+  <div class="saved-list" id="saved-list">
+    <div class="empty"><div class="empty-icon">🎀</div><p>No saved gifts yet — swipe right!</p></div>
+  </div>
+  <button class="reset-btn" onclick="reset()">↩ Start over</button>
+</div>
+
+<script>
+  const S = {
+    recipient: '', bmin: 25, bmax: 100,
+    gift: null,
+    saved: [], skipped: 0,
+    seen: [],
+    loading: false,
+    drag: false, x0: 0, dx: 0,
+  };
+
+  function swapImgPlaceholder(img) {
+    const div = document.createElement('div');
+    div.className = 'card-img-placeholder';
+    div.textContent = img.dataset.emoji || '🎁';
+    img.replaceWith(div);
+  }
+
+  const $ = id => document.getElementById(id);
+  const setup  = $('setup');
+  const cards  = $('cards');
+  const card   = $('card');
+
+  /* ── SETUP ── */
+  $('start-btn').onclick = start;
+  $('recipient').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+
+  function start() {
+    const rec  = $('recipient').value.trim();
+    const bmin = parseInt($('bmin').value);
+    const bmax = parseInt($('bmax').value);
+
+    let ok = true;
+    if (!rec)               { show('err-recipient', true); ok = false; } else { show('err-recipient', false); }
+    if (!bmin || !bmax || bmin >= bmax) { show('err-budget', true);    ok = false; } else { show('err-budget', false);    }
+    if (!ok) return;
+
+    S.recipient = rec; S.bmin = bmin; S.bmax = bmax;
+    setup.style.display = 'none';
+    cards.classList.add('active');
+    load();
+  }
+
+  function show(id, visible) {
+    $(id).style.display = visible ? 'block' : 'none';
+  }
+
+  /* ── API ── */
+  async function load() {
+    if (S.loading) return;
+    S.loading = true;
+    setButtons(false);
+    renderLoading();
+
+    try {
+      const res = await fetch('/api/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: S.recipient, budgetMin: S.bmin, budgetMax: S.bmax, previousSuggestions: S.seen }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Server error'); }
+      const gift = await res.json();
+      S.gift = gift;
+      S.seen.push(gift.name);
+      renderGift(gift);
+    } catch (e) {
+      renderError(e.message);
+    } finally {
+      S.loading = false;
+      setButtons(true);
+    }
+  }
+
+  /* ── RENDER ── */
+  function renderLoading() {
+    card.innerHTML = `<div class="center-state"><div class="spinner"></div><p class="state-text">Finding gifts for ${esc(S.recipient)}…</p></div>`;
+    card.style.cssText = 'transform:; opacity:1;';
+  }
+
+  function renderGift(g) {
+    const imgHtml = g.imageUrl
+      ? `<img class="card-img" src="${esc(g.imageUrl)}" alt="${esc(g.name)}" onerror="swapImgPlaceholder(this)" data-emoji="${esc(g.emoji)}" />`
+      : `<div class="card-img-placeholder">${esc(g.emoji)}</div>`;
+
+    card.innerHTML = `
+      <div class="overlay overlay-yes" id="oy"><span class="overlay-label">SAVE</span></div>
+      <div class="overlay overlay-no"  id="on"><span class="overlay-label">SKIP</span></div>
+      ${imgHtml}
+      <div class="chip"><span class="chip-emoji">${esc(g.emoji)}</span>${esc(g.category)}</div>
+      <h2 class="card-name">${esc(g.name)}</h2>
+      <p class="card-desc">${esc(g.description)}</p>
+      <div class="card-price">${esc(g.price)}</div>
+      <a href="${esc(g.amazonUrl)}" target="_blank" rel="noopener" class="amazon-btn" onclick="event.stopPropagation()">
+        🛒 View on Amazon
+      </a>`;
+    card.style.transform = '';
+    card.style.opacity = '1';
+    card.classList.add('card-in');
+    setTimeout(() => card.classList.remove('card-in'), 300);
+    attachDrag();
+  }
+
+  function renderError(msg) {
+    card.innerHTML = `
+      <div class="center-state">
+        <div style="font-size:44px">😬</div>
+        <p class="state-text">${esc(msg)}</p>
+        <button class="retry-btn" onclick="load()">Try again</button>
+      </div>`;
+  }
+
+  /* ── DRAG ── */
+  function attachDrag() {
+    card.onmousedown = card.ontouchstart = dragStart;
+  }
+
+  function dragStart(e) {
+    if (S.loading) return;
+    const t = e.target;
+    if (t.closest('.amazon-btn')) return;
+    S.drag = true; S.x0 = clientX(e); S.dx = 0;
+    card.style.transition = 'none';
+    document.onmousemove = document.ontouchmove = dragMove;
+    document.onmouseup  = document.ontouchend  = dragEnd;
+  }
+
+  function dragMove(e) {
+    if (!S.drag) return;
+    S.dx = clientX(e) - S.x0;
+    card.style.transform = `translateX(${S.dx}px) rotate(${S.dx * .07}deg)`;
+    const oy = $('oy'), on = $('on');
+    if (!oy) return;
+    const t = 50, r = 90;
+    oy.style.opacity = S.dx >  t ? Math.min(1, (S.dx - t) / r) : 0;
+    on.style.opacity = S.dx < -t ? Math.min(1, (-S.dx - t) / r) : 0;
+  }
+
+  function dragEnd() {
+    if (!S.drag) return;
+    S.drag = false;
+    document.onmousemove = document.ontouchmove = null;
+    document.onmouseup   = document.ontouchend  = null;
+    card.style.transition = 'transform .3s ease, opacity .3s ease';
+    if      (S.dx >  110) accept();
+    else if (S.dx < -110) decline();
+    else {
+      card.style.transform = '';
+      const oy = $('oy'), on = $('on');
+      if (oy) oy.style.opacity = 0;
+      if (on) on.style.opacity = 0;
+    }
+  }
+
+  function clientX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+
+  /* ── ACCEPT / DECLINE ── */
+  function accept() {
+    if (!S.gift || S.loading) return;
+    card.style.transition = 'transform .4s ease, opacity .4s ease';
+    card.style.transform  = 'translateX(160%) rotate(30deg)';
+    card.style.opacity    = '0';
+    S.saved.push(S.gift);
+    updateStats();
+    setTimeout(load, 360);
+  }
+
+  function decline() {
+    if (!S.gift || S.loading) return;
+    card.style.transition = 'transform .4s ease, opacity .4s ease';
+    card.style.transform  = 'translateX(-160%) rotate(-30deg)';
+    card.style.opacity    = '0';
+    S.skipped++;
+    updateStats();
+    setTimeout(load, 360);
+  }
+
+  function updateStats() {
+    $('cnt-saved').textContent  = S.saved.length;
+    $('cnt-skip').textContent   = S.skipped;
+    $('cnt-panel').textContent  = S.saved.length;
+  }
+
+  function setButtons(on) {
+    $('btn-yes').disabled = !on;
+    $('btn-no').disabled  = !on;
+  }
+
+  /* ── SAVED PANEL ── */
+  function openPanel() {
+    $('panel').classList.add('open');
+    $('backdrop').classList.add('on');
+    renderList();
+  }
+
+  function closePanel() {
+    $('panel').classList.remove('open');
+    $('backdrop').classList.remove('on');
+  }
+
+  function renderList() {
+    const el = $('saved-list');
+    if (!S.saved.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">🎀</div><p>No saved gifts yet — swipe right!</p></div>';
+      return;
+    }
+    el.innerHTML = S.saved.map(g => `
+      <div class="saved-item">
+        <span class="item-emoji">${esc(g.emoji)}</span>
+        <div>
+          <div class="item-name">${esc(g.name)}</div>
+          <div class="item-price">${esc(g.price)}</div>
+          <a href="${esc(g.amazonUrl)}" target="_blank" rel="noopener" class="item-link">🛒 Amazon</a>
+        </div>
+      </div>`).join('');
+  }
+
+  /* ── RESET ── */
+  function reset() {
+    Object.assign(S, { recipient:'', bmin:25, bmax:100, gift:null, saved:[], skipped:0, seen:[], loading:false, drag:false, x0:0, dx:0 });
+    closePanel();
+    cards.classList.remove('active');
+    setup.style.display = '';
+    updateStats();
+  }
+
+  /* ── KEYBOARD ── */
+  document.addEventListener('keydown', e => {
+    if (!cards.classList.contains('active') || S.loading) return;
+    if ($('panel').classList.contains('open')) { if (e.key === 'Escape') closePanel(); return; }
+    if (e.key === 'ArrowRight') accept();
+    if (e.key === 'ArrowLeft')  decline();
+  });
+
+  /* ── UTILS ── */
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s ?? '';
+    return d.innerHTML;
+  }
+</script>
+</body>
+</html>

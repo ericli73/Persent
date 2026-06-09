@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); pages=list\\(d.get\\('query',{}\\).get\\('pages',{}\\).values\\(\\)\\); imgs=[p for p in pages if p.get\\('thumbnail'\\)]; print\\(imgs[0]['thumbnail']['source'] if imgs else 'no image'\\)\")"
+    ]
+  }
+}
