@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import Groq from 'groq-sdk';
 import { fileURLToPath } from 'url';
@@ -65,25 +66,32 @@ async function fetchWikipediaImage(searchTerms) {
 }
 
 app.post('/api/suggest', async (req, res) => {
-  const { recipient, budgetMin, budgetMax, previousSuggestions = [] } = req.body;
+  const { occasion = '', recipient, budgetMin, budgetMax, previousSuggestions = [], liked = [], disliked = [] } = req.body;
 
   if (!recipient || !budgetMin || !budgetMax) {
     return res.status(400).json({ error: 'Missing required fields.' });
   }
 
-  const avoidList = previousSuggestions.length > 0
-    ? `\n\nDo NOT suggest any of these already-shown items: ${previousSuggestions.join('; ')}.`
+  const seenLine = previousSuggestions.length > 0
+    ? `\nAlready shown (do not repeat): ${previousSuggestions.join('; ')}.`
+    : '';
+  const likedLine = liked.length > 0
+    ? `\nThe user LIKED these — suggest something in a similar vein: ${liked.join('; ')}.`
+    : '';
+  const dislikedLine = disliked.length > 0
+    ? `\nThe user DISLIKED these — avoid this style/category: ${disliked.join('; ')}.`
     : '';
 
   const prompt = `You are a thoughtful gift recommendation expert. Suggest ONE specific, real product available on Amazon as a gift.
 
-Gift recipient: ${recipient}
-Budget: $${budgetMin} to $${budgetMax}${avoidList}
+Gift recipient: ${recipient}${occasion ? `\nOccasion: ${occasion}` : ''}
+Budget: $${budgetMin} to $${budgetMax}${seenLine}${likedLine}${dislikedLine}
 
 Rules:
 - The product must fit within the $${budgetMin}–$${budgetMax} budget.
 - Be specific — name a real product type easily findable on Amazon.
 - Tailor the recommendation to the recipient description.
+- Use the liked/disliked history to hone in on what this person actually wants.
 
 Respond with ONLY a valid JSON object — no markdown, no code fences, no explanation:
 {
