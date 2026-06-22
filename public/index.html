@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Gift Finder</title>
+  <title>Persent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1178,7 +1178,7 @@
   <div id="landing" class="hidden">
     <div class="landing-ambient"></div>
     <nav class="landing-nav">
-      <a class="nav-logo"><span class="nav-logo-icon">🎁</span> Gift Finder</a>
+      <a class="nav-logo"><span class="nav-logo-icon">🎁</span> Persent</a>
       <button class="nav-cta" onclick="startApp()">Get Started</button>
     </nav>
     <canvas id="sphere-canvas"></canvas>
@@ -1330,7 +1330,7 @@
     <footer class="landing-footer">
       <div class="footer-top">
         <div class="footer-brand">
-          <div class="footer-logo"><span>🎁</span> Gift Finder</div>
+          <div class="footer-logo"><span>🎁</span> Persent</div>
           <div class="footer-tagline">AI-powered gift recommendations for every person and occasion.</div>
           <div class="footer-social">
             <a href="#" aria-label="Twitter/X">
@@ -1358,7 +1358,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 Gift Finder. All rights reserved.</span>
+        <span>© 2026 Persent. All rights reserved.</span>
         <span>Made with ❤️ for gift-givers everywhere</span>
       </div>
     </footer>
@@ -1424,7 +1424,7 @@
     <nav class="app-sidebar">
       <div class="sb-brand">
         <span class="sb-brand-icon">🎁</span>
-        <span class="sb-brand-name">Gift Finder</span>
+        <span class="sb-brand-name">Persent</span>
       </div>
       <div class="sb-nav">
         <button class="sb-item active" onclick="switchView('dating')">
@@ -1860,7 +1860,7 @@
         price:       gift.price,
         category:    gift.category,
         emoji:       gift.emoji,
-        amazon_url:  gift.amazonUrl,
+        amazon_url:  gift.productUrl || gift.amazonUrl,
         image_url:   gift.imageUrl || null,
         search_terms: gift.searchTerms || null,
         occasion:    S.occasion,
@@ -1882,7 +1882,7 @@
         S.saved = data.map(r => ({
           id: r.id, name: r.name, description: r.description,
           price: r.price, category: r.category, emoji: r.emoji,
-          amazonUrl: r.amazon_url, imageUrl: r.image_url, searchTerms: r.search_terms,
+          productUrl: r.amazon_url, retailer: 'Amazon', imageUrl: r.image_url, searchTerms: r.search_terms,
         }));
         updateStats();
       }
@@ -1959,8 +1959,8 @@
           <div class="gift-cat-badge">${esc(g.emoji)} ${esc(g.category)}</div>
           <h2 class="gift-name-big">${esc(g.name)}</h2>
           <div class="gift-footer-row">
-            <span class="gift-price-big">${esc(g.price)}</span>
-            <a href="${esc(g.amazonUrl)}" target="_blank" rel="noopener" class="gift-amz-btn" onclick="event.stopPropagation()">🛒 Amazon</a>
+            ${g.price ? `<span class="gift-price-big">${esc(g.price)}</span>` : ''}
+            <a href="${esc(g.productUrl || g.amazonUrl)}" target="_blank" rel="noopener" class="gift-amz-btn" onclick="event.stopPropagation()">🛒 ${esc(g.retailer || 'Amazon')}</a>
           </div>
         </div>`;
       card.style.transform = ''; card.style.opacity = '1';
@@ -2076,7 +2076,7 @@
             <div class="saved-name">${esc(g.name)}</div>
             <div class="saved-price">${esc(g.price)}</div>
             <div class="saved-actions">
-              <a href="${esc(g.amazonUrl)}" target="_blank" rel="noopener" class="saved-link">🛒 Amazon</a>
+              <a href="${esc(g.productUrl || g.amazonUrl)}" target="_blank" rel="noopener" class="saved-link">🛒 ${esc(g.retailer || 'Amazon')}</a>
               <button class="del-btn" onclick="removeGift('${g.id}')">Remove</button>
             </div>
           </div>
@@ -2539,7 +2539,7 @@
 
       const importBox = `<div class="import-box">
         <h3>Add a friend's profile</h3>
-        <p>Ask your friend to share their code from Gift Finder, then paste it below.</p>
+        <p>Ask your friend to share their code from Persent, then paste it below.</p>
         <div class="import-row">
           <input class="t-input" type="text" id="import-code" placeholder="Paste friend's code…" />
           <button class="tag-add-btn" onclick="importFriend()">Add</button>
@@ -2840,16 +2840,13 @@
           emissive: 0x1144CC, emissiveIntensity: 0.12, fog: false,
         });
 
-        const g1 = makeText('Gift', 0.58);
-        const g2 = makeText('Finder', 0.58);
+        const g1 = makeText('Persent', 0.58);
 
         const m1 = new THREE.Mesh(g1, mat);
-        const m2 = new THREE.Mesh(g2, mat);
-        m1.position.y =  0.44;
-        m2.position.y = -0.44;
+        m1.position.y = 0;
 
         textGroup = new THREE.Group();
-        textGroup.add(m1, m2);
+        textGroup.add(m1);
         scene.add(textGroup);
       });
 
