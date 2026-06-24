@@ -13,6 +13,33 @@ app.use(express.static(join(__dirname, 'public')));
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+// ── Product image: Serper image search ───────────────────────────────────────
+// Shopping results return low-res thumbnails. This fetches a full-size product
+// image from the source website instead. Runs in parallel with the shopping call.
+async function fetchProductImage(searchTerms) {
+  const apiKey = process.env.SERPER_API_KEY;
+  if (!apiKey) return null;
+  try {
+    const res = await fetch('https://google.serper.dev/images', {
+      method: 'POST',
+      headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q: searchTerms, num: 5 }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    // Prefer full-size images — skip Google's encrypted-tbn thumbnails
+    const img = data?.images?.find(i =>
+      i.imageUrl && !i.imageUrl.includes('encrypted-tbn') &&
+      (i.imageWidth >= 400 || i.imageHeight >= 400)
+    ) || data?.images?.find(i => i.imageUrl && !i.imageUrl.includes('encrypted-tbn'))
+      || data?.images?.[0];
+    return img?.imageUrl ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // ── Product lookup via Google Shopping (Serper.dev) ──────────────────────────
 // Returns the top Google Shopping result: exact name, price, image, and a direct
 // link to the retailer's product page (Amazon, Walmart, Best Buy, etc.).
@@ -101,10 +128,13 @@ app.post('/api/suggest', async (req, res) => {
   try {
     const gift = await callGroq(buildPrompt(recipient, occasion, budgetMin, budgetMax, seenLine, likedLine, dislikedLine));
 
-    // Fetch real product — Serper handles price filtering against budget
-    const product = await fetchRetailerProduct(gift.searchTerms, budgetMin, budgetMax);
+    // Both Serper calls run in parallel — shopping for price/name/link, images for HD photo
+    const [product, hdImage] = await Promise.all([
+      fetchRetailerProduct(gift.searchTerms, budgetMin, budgetMax),
+      fetchProductImage(gift.searchTerms),
+    ]);
     gift.price      = product?.price    ?? null;
-    gift.imageUrl   = product?.imageUrl ?? null;
+    gift.imageUrl   = hdImage ?? product?.imageUrl ?? null;
     gift.productUrl = product?.productUrl ?? `https://www.amazon.com/s?k=${encodeURIComponent(gift.searchTerms)}&sort=review-rank`;
     gift.retailer   = product?.retailer ?? 'Amazon';
     if (product?.name) {
