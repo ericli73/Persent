@@ -150,7 +150,10 @@ app.post('/api/suggest', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Persent running at http://localhost:${PORT}`);
-});
+export default app;
+
+// Only bind a port when running locally — Vercel uses the exported app directly
+if (process.env.VERCEL !== '1') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Persent running at http://localhost:${PORT}`));
+}
