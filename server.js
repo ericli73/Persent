@@ -85,6 +85,30 @@ async function fetchRetailerProduct(searchTerms, budgetMin, budgetMax) {
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
+// Proxy external product images to bypass hotlink protection on retailer sites.
+app.get('/api/image-proxy', async (req, res) => {
+  const { url } = req.query;
+  if (!url || !/^https?:\/\//.test(url)) return res.status(400).end();
+  try {
+    const upstream = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        'Referer': new URL(url).origin + '/',
+        'Accept': 'image/*,*/*;q=0.8',
+      },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!upstream.ok) return res.status(404).end();
+    const buffer = await upstream.arrayBuffer();
+    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(Buffer.from(buffer));
+  } catch (e) {
+    console.error('Image proxy:', e.message);
+    res.status(500).end();
+  }
+});
+
 function buildPrompt(recipient, occasion, budgetMin, budgetMax, seenLine, likedLine, dislikedLine) {
   return `You are a gift recommendation expert.
 Suggest ONE specific gift product for the recipient below.
@@ -134,7 +158,10 @@ app.post('/api/suggest', async (req, res) => {
       fetchProductImage(gift.searchTerms),
     ]);
     gift.price      = product?.price    ?? null;
-    gift.imageUrl   = hdImage ?? product?.imageUrl ?? null;
+    // HD image proxied through our server to bypass retailer hotlink protection
+    gift.imageUrl   = hdImage
+      ? `/api/image-proxy?url=${encodeURIComponent(hdImage)}`
+      : product?.imageUrl ?? null;
     gift.productUrl = product?.productUrl ?? `https://www.amazon.com/s?k=${encodeURIComponent(gift.searchTerms)}&sort=review-rank`;
     gift.retailer   = product?.retailer ?? 'Amazon';
     if (product?.name) {

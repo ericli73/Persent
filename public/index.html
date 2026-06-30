@@ -17,6 +17,8 @@
   </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { scrollbar-width: none; -ms-overflow-style: none; }
+    *::-webkit-scrollbar { display: none; }
     html, body { overflow: hidden; height: 100%; background: #fff; }
 
     :root {
@@ -177,17 +179,35 @@
     }
 
     /* ── APP SHELL ── */
+    body {
+      background: radial-gradient(ellipse at 55% 35%, #1e1b4b 0%, #0a0a18 100%);
+      min-height: 100vh; overflow: hidden;
+    }
     #app {
-      position: fixed; inset: 0; z-index: 1;
-      display: flex; background: #F4F7FF;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(390px, 100vw);
+      height: min(844px, 100dvh);
+      z-index: 1;
+      display: flex; flex-direction: column;
+      background: #F4F7FF;
+      border-radius: 44px;
+      overflow: hidden;
+      box-shadow: 0 40px 130px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.07);
+    }
+    @media (max-width: 430px) {
+      body { background: #F4F7FF; }
+      #app { top: 0; left: 0; transform: none; width: 100%; height: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
     }
 
-    /* ── SIDEBAR ── */
+    /* ── SIDEBAR (hidden — replaced by bottom nav) ── */
     .app-sidebar {
+      display: none;
       width: 220px; flex-shrink: 0;
       background: #fff;
       border-right: 1px solid rgba(6,6,40,0.06);
-      display: flex; flex-direction: column;
+      flex-direction: column;
       padding: 0;
     }
     .sb-brand {
@@ -269,8 +289,58 @@
     }
     .sb-signout:hover { background: rgba(224,82,82,0.07); color: #E05252; }
 
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      flex-shrink: 0; height: 80px;
+      display: flex; align-items: flex-start; padding-top: 8px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(6,6,40,0.08);
+      z-index: 100;
+    }
+    .bn-tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 4px 0; background: none; border: none; cursor: pointer;
+      color: rgba(60,60,67,0.4); font-size: 10px; font-weight: 500;
+      transition: color 0.15s;
+    }
+    .bn-tab:hover { color: rgba(60,60,67,0.7); }
+    .bn-tab.active { color: #1A6FFF; background: none; font-weight: 600; }
+    .bn-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 42px; height: 26px; border-radius: 13px;
+      font-size: 23px; line-height: 1;
+      transition: background 0.18s;
+    }
+    .bn-tab.active .bn-icon { background: rgba(26,111,255,0.11); }
+    .bn-avatar {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #1A6FFF, #0044CC);
+      color: #fff; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .bn-tab.active .bn-avatar { box-shadow: 0 0 0 2px #1A6FFF; }
+    .bn-avatar img, .sb-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+    .profile-avatar-wrap {
+      position: relative; width: 54px; height: 54px; flex-shrink: 0; cursor: pointer;
+    }
+    .profile-avatar-wrap .profile-emoji-pick { width: 100%; height: 100%; margin: 0; }
+    .profile-avatar-wrap img.profile-photo {
+      width: 54px; height: 54px; border-radius: 14px; object-fit: cover; display: block;
+      border: 1.5px solid var(--border);
+    }
+    .photo-change-overlay {
+      position: absolute; inset: 0; border-radius: 14px;
+      background: rgba(0,0,0,0.38); opacity: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.15s;
+    }
+    .profile-avatar-wrap:hover .photo-change-overlay,
+    .profile-avatar-wrap:active .photo-change-overlay { opacity: 1; }
+
     /* ── MAIN CONTENT ── */
-    .app-main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+    .app-main { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
 
     /* ── VIEWS ── */
     .app-view { display: none; flex: 1; flex-direction: column; min-height: 100%; }
@@ -395,6 +465,7 @@
       width: 100%; height: 100%;
       object-fit: cover; object-position: center;
       opacity: 0; transition: opacity 0.6s ease;
+      background: #fff;
     }
     .gift-card-img.img-ready { opacity: 1; }
     /* Emoji placeholder — always visible behind the image */
@@ -916,6 +987,49 @@
     .profiles-empty h3 { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; color: var(--text); margin: 4px 0; }
     .profiles-empty p { font-size: 14px; max-width: 260px; line-height: 1.5; }
 
+    /* ── profile header ── */
+    .profile-hdr {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 20px 0 22px; gap: 5px;
+      border-bottom: 1px solid var(--border); margin-bottom: 22px;
+    }
+    .profile-ph-wrap {
+      position: relative; width: 86px; height: 86px; cursor: pointer; margin-bottom: 8px;
+    }
+    .profile-ph-circle {
+      width: 86px; height: 86px; border-radius: 50%; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      border: 2.5px solid rgba(6,6,40,0.07);
+    }
+    .profile-ph-circle img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .profile-ph-overlay {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(0,0,0,0.32); opacity: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.15s;
+    }
+    .profile-ph-wrap:hover .profile-ph-overlay,
+    .profile-ph-wrap:active .profile-ph-overlay { opacity: 1; }
+    .profile-hdr-name {
+      font-size: 17px; font-weight: 700; color: #060628; letter-spacing: -0.01em;
+    }
+    .profile-hdr-bio {
+      font-size: 13px; color: rgba(6,6,40,0.5); text-align: center;
+      max-width: 230px; line-height: 1.45; margin-top: 1px;
+    }
+    .profile-stats-row {
+      display: flex; gap: 36px; margin: 10px 0 8px;
+    }
+    .profile-stat { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .profile-stat-n { font-size: 17px; font-weight: 700; color: #060628; line-height: 1.2; }
+    .profile-stat-l { font-size: 11px; color: rgba(6,6,40,0.42); font-weight: 500; }
+    .edit-profile-btn {
+      padding: 8px 28px; border-radius: 9px;
+      border: 1.5px solid rgba(6,6,40,0.2); background: transparent;
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      color: #060628; cursor: pointer; transition: border-color .15s, color .15s;
+    }
+    .edit-profile-btn:hover { border-color: #1A6FFF; color: #1A6FFF; }
     .profile-name-row {
       display: flex; gap: 10px; align-items: flex-start; margin-bottom: 24px;
     }
@@ -934,6 +1048,13 @@
     }
     .save-profile-btn:hover { background: var(--ph); }
     .save-profile-btn.saved { background: var(--accept); box-shadow: 0 2px 12px rgba(76,175,121,0.25); }
+    .signout-btn {
+      margin-top: 8px; padding: 11px 24px; border: 1.5px solid rgba(6,6,40,0.15); border-radius: 11px; cursor: pointer;
+      background: transparent; color: rgba(6,6,40,0.55);
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+      transition: border-color .15s, color .15s;
+    }
+    .signout-btn:hover { border-color: #e53e3e; color: #e53e3e; }
 
     /* Animations */
     @keyframes spin   { to { transform: rotate(360deg); } }
@@ -942,14 +1063,6 @@
     .card-in { animation: cardIn .25s ease; }
 
     @media (max-width: 768px) {
-      .app-sidebar { width: 60px; }
-      .sb-brand-name, .sb-item-icon + span, .sb-section-label, .sb-user-email, .sb-signout span { display: none; }
-      .sb-item { justify-content: center; padding: 12px; }
-      .sb-item-icon { width: auto; }
-      .sb-brand { justify-content: center; padding: 18px 0; }
-      .sb-footer { padding: 8px 6px; }
-      .sb-user { justify-content: center; padding: 8px; }
-      .sb-signout { justify-content: center; }
       .view-header { padding: 24px 20px 18px; }
       .view-body { padding: 20px; }
       #setup-wrapper { padding: 20px; }
@@ -964,22 +1077,63 @@
 
     /* ══ LANDING PAGE ══ */
     #landing {
-      position: fixed; inset: 0; z-index: 40;
-      background: #fff;
-      overflow-y: auto;
-      overscroll-behavior: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(390px, 100vw);
+      height: min(844px, 100dvh);
+      z-index: 40; background: #fff;
+      overflow: hidden;
+      border-radius: 44px;
+      box-shadow: 0 40px 130px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.07);
+      cursor: pointer;
     }
+    @media (max-width: 430px) {
+      #landing { top: 0; left: 0; transform: none; width: 100%; height: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+    }
+    #sphere-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+    /* ── loading overlay ── */
+    #ls-overlay {
+      position: absolute; inset: 0; z-index: 20;
+      background: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 28px;
+      pointer-events: none;
+      transition: opacity 0.75s cubic-bezier(0.4,0,0.2,1);
+    }
+    #ls-overlay.ls-out { opacity: 0; }
+    #ls-brand {
+      font-family: 'Inter', sans-serif; font-weight: 800;
+      font-size: 28px; letter-spacing: 0.14em; color: #060628;
+    }
+    #ls-track {
+      width: 72px; height: 1.5px;
+      background: rgba(6,6,40,0.09); border-radius: 2px; overflow: hidden;
+    }
+    #ls-fill {
+      height: 100%; width: 0%; border-radius: 2px;
+      background: #1A6FFF;
+      transition: width 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    .landing-tap {
+      position: absolute; bottom: 52px; left: 0; right: 0;
+      text-align: center; margin: 0; pointer-events: none;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(6,6,40,0.38);
+      opacity: 0; transition: opacity 0.6s ease;
+    }
+    .landing-tap.tap-in { opacity: 1; }
+    @keyframes landingOut { to { opacity: 0; transform: translate(-50%,-50%) scale(0.97); } }
+    .landing-exit { animation: landingOut 0.3s ease forwards; pointer-events: none; }
+
+    /* ── KEPT BUT UNUSED (can be deleted later) ── */
     .landing-ambient {
       position: fixed; inset: 0; pointer-events: none; z-index: 0;
       background:
         radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,100,255,0.07) 0%, transparent 65%),
         radial-gradient(ellipse 80% 40% at 80% 90%, rgba(0,60,200,0.04) 0%, transparent 60%);
     }
-    #sphere-canvas {
-      position: sticky; top: 0;
-      display: block; width: 100%; height: 100vh;
-      z-index: 1;
-    }
+    /* #sphere-canvas — overridden by rule above */
     /* ── LANDING NAVBAR ── */
     .landing-nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
@@ -1047,8 +1201,6 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
     .s2-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,80,255,0.5); }
-    @keyframes landingOut { to { opacity: 0; } }
-    .landing-exit { animation: landingOut 0.4s ease forwards; pointer-events: none; }
     /* Scroll-reveal */
     .sr { opacity: 0; transform: translateY(26px); transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.23,1,0.32,1); }
     .sr.sr-in { opacity: 1; transform: none; }
@@ -1175,14 +1327,17 @@
   </div>
 
   <!-- ══ LANDING ══ -->
-  <div id="landing" class="hidden">
-    <div class="landing-ambient"></div>
-    <nav class="landing-nav">
-      <a class="nav-logo"><span class="nav-logo-icon">🎁</span> Persent</a>
-      <button class="nav-cta" onclick="startApp()">Get Started</button>
-    </nav>
+  <div id="landing" class="hidden" onclick="startApp()">
     <canvas id="sphere-canvas"></canvas>
-    <div class="landing-s2">
+    <div id="ls-overlay">
+      <p id="ls-brand">PERSENT</p>
+      <div id="ls-track"><div id="ls-fill"></div></div>
+    </div>
+    <p class="landing-tap" id="landing-tap">Tap to start</p>
+  </div>
+
+  <!-- REMOVED marketing sections below (s2, occasions, footer) -->
+  <div style="display:none"><div class="landing-s2">
       <div class="s2-headline">
         <h2>The perfect gift,<br><em>every time.</em></h2>
         <p>AI-powered recommendations tailored to the person, occasion, and your budget.</p>
@@ -1362,7 +1517,7 @@
         <span>Made with ❤️ for gift-givers everywhere</span>
       </div>
     </footer>
-  </div>
+  </div></div><!-- end hidden marketing sections -->
 
   <!-- Loading -->
   <div id="loading-screen">
@@ -1375,7 +1530,7 @@
       <button class="auth-close" onclick="hideAuthModal()">✕</button>
 
       <div class="auth-brand">
-        <span class="auth-logo">🎁</span>
+        <span class="auth-logo">P</span>
         <h2 class="auth-title" id="auth-title">Welcome back</h2>
         <p class="auth-tag">Sign in to save and discover gifts</p>
       </div>
@@ -1392,7 +1547,7 @@
           Continue with Google
         </button>
         <div class="auth-divider">or</div>
-        <button class="auth-option-btn" onclick="showEmailForm()">📧 Continue with Email</button>
+        <button class="auth-option-btn" onclick="showEmailForm()">Continue with Email</button>
       </div>
 
       <!-- Email form -->
@@ -1423,21 +1578,18 @@
     <!-- Sidebar -->
     <nav class="app-sidebar">
       <div class="sb-brand">
-        <span class="sb-brand-icon">🎁</span>
+        <span class="sb-brand-icon">P</span>
         <span class="sb-brand-name">Persent</span>
       </div>
       <div class="sb-nav">
         <button class="sb-item active" onclick="switchView('dating')">
-          <span class="sb-item-icon">💘</span><span>Gift Dating</span>
+          <span class="sb-item-icon"></span><span>Gift Dating</span>
         </button>
         <button class="sb-item" onclick="switchView('rankings')">
-          <span class="sb-item-icon">⭐</span><span>Gift Rankings</span>
+          <span class="sb-item-icon"></span><span>Gift Rankings</span>
         </button>
         <button class="sb-item" onclick="switchView('leaderboard')">
-          <span class="sb-item-icon">🏆</span><span>Leaderboard</span>
-        </button>
-        <button class="sb-item" onclick="switchView('profiles')">
-          <span class="sb-item-icon">👥</span><span>Friends</span>
+          <span class="sb-item-icon"></span><span>Leaderboard</span>
         </button>
       </div>
       <div class="sb-footer" onmouseenter="updateSbPopup()">
@@ -1468,24 +1620,24 @@
           </div>
           <div class="setup-card" id="step-1">
             <div class="card-hd">
-              <div class="card-icon">🎁</div>
+              <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
               <div class="card-hd-text">
                 <h2>What's the occasion?</h2>
                 <p>Every gift is better with context.</p>
               </div>
             </div>
             <div class="opt-grid">
-              <button class="opt-btn" onclick="selectOccasion('Birthday')">🎂 Birthday</button>
-              <button class="opt-btn" onclick="selectOccasion('Holiday')">🎄 Holiday</button>
-              <button class="opt-btn" onclick="selectOccasion('Anniversary')">❤️ Anniversary</button>
-              <button class="opt-btn" onclick="selectOccasion('Graduation')">🎓 Graduation</button>
-              <button class="opt-btn" onclick="selectOccasion('Wedding')">💍 Wedding</button>
-              <button class="opt-btn" onclick="selectOccasion('Just Because')">✨ Just Because</button>
+              <button class="opt-btn" onclick="selectOccasion('Birthday')">Birthday</button>
+              <button class="opt-btn" onclick="selectOccasion('Holiday')">Holiday</button>
+              <button class="opt-btn" onclick="selectOccasion('Anniversary')">Anniversary</button>
+              <button class="opt-btn" onclick="selectOccasion('Graduation')">Graduation</button>
+              <button class="opt-btn" onclick="selectOccasion('Wedding')">Wedding</button>
+              <button class="opt-btn" onclick="selectOccasion('Just Because')">Just Because</button>
             </div>
           </div>
           <div class="setup-card hidden" id="step-2">
             <div class="card-hd">
-              <div class="card-icon">👤</div>
+              <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
               <div class="card-hd-text">
                 <h2>Who are you shopping for?</h2>
                 <p>Describe them and we'll tailor every pick.</p>
@@ -1497,7 +1649,7 @@
           </div>
           <div class="setup-card hidden" id="step-3">
             <div class="card-hd">
-              <div class="card-icon">💰</div>
+              <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
               <div class="card-hd-text">
                 <h2>What's your budget?</h2>
                 <p>We'll find something perfect in that range.</p>
@@ -1509,7 +1661,7 @@
               <div class="dollar"><input class="t-input" type="number" id="bmax" placeholder="100" min="1" max="50000" value="100" /></div>
             </div>
             <p class="err" id="err-budget">Enter a valid range (min &lt; max).</p>
-            <button class="btn-p" onclick="startFinding()" style="margin-top:18px">Find Gifts ✨</button>
+            <button class="btn-p" onclick="startFinding()" style="margin-top:18px">Find Gifts</button>
           </div>
         </div>
 
@@ -1517,10 +1669,10 @@
         <div id="card-screen" class="hidden">
           <div class="dating-topbar">
             <div class="dating-stats">
-              <span class="d-pill">💚 <span id="cnt-saved">0</span> saved</span>
-              <span class="d-pill">💨 <span id="cnt-skip">0</span> skipped</span>
+              <span class="d-pill"><span id="cnt-saved">0</span> saved</span>
+              <span class="d-pill"><span id="cnt-skip">0</span> skipped</span>
             </div>
-            <button class="d-btn" onclick="openFilters()">⚙ Filters</button>
+            <button class="d-btn" onclick="openFilters()">Filters</button>
           </div>
           <div class="stack">
             <div class="gift-card" id="card">
@@ -1533,7 +1685,7 @@
           </div>
           <p class="hint"><kbd>←</kbd> Skip &nbsp; <kbd>→</kbd> Save</p>
           <div class="dating-bottom">
-            <button class="bottom-btn" onclick="openPanel()">🎁 Saved (<span id="cnt-panel">0</span>)</button>
+            <button class="bottom-btn" onclick="openPanel()">Saved (<span id="cnt-panel">0</span>)</button>
             <button class="bottom-btn" onclick="resetSession()">↩ New search</button>
           </div>
         </div>
@@ -1541,10 +1693,6 @@
 
       <!-- ── VIEW: Gift Rankings ── -->
       <div class="app-view" id="view-rankings">
-        <div class="view-header">
-          <div class="view-title">Gift Rankings</div>
-          <div class="view-desc">Rate gifts you've received. Build your personal gift hall of fame.</div>
-        </div>
         <div class="view-body" id="rankings-body">
           <!-- populated by JS -->
         </div>
@@ -1552,38 +1700,36 @@
 
       <!-- ── VIEW: Leaderboard ── -->
       <div class="app-view" id="view-leaderboard">
-        <div class="view-header">
-          <div class="view-title">Gift Leaderboard</div>
-          <div class="view-desc">Community-voted best gifts — like IMDb, but for gifts.</div>
-        </div>
         <div class="view-body" id="leaderboard-body">
-          <!-- populated by JS -->
-        </div>
-      </div>
-
-      <!-- ── VIEW: Friend Profiles ── -->
-      <div class="app-view" id="view-profiles">
-        <div class="view-header">
-          <div class="view-title">Friend Profiles</div>
-          <div class="view-desc">Add friends' profiles so you always know what to get them.</div>
-        </div>
-        <div class="view-body" id="profiles-body">
           <!-- populated by JS -->
         </div>
       </div>
 
       <!-- ── VIEW: My Profile ── -->
       <div class="app-view" id="view-myprofile">
-        <div class="view-header">
-          <div class="view-title">My Profile</div>
-          <div class="view-desc">Build your gift profile. Share it with friends so they always know what to get you.</div>
-        </div>
         <div class="view-body" id="myprofile-body">
           <!-- populated by JS -->
         </div>
       </div>
 
     </main>
+
+    <!-- Bottom tab bar -->
+    <nav class="bottom-nav">
+      <button class="bn-tab sb-item active" onclick="switchView('dating')">
+        <span class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span><span>Discover</span>
+      </button>
+      <button class="bn-tab sb-item" onclick="switchView('rankings')">
+        <span class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><span>Rankings</span>
+      </button>
+      <button class="bn-tab sb-item" onclick="switchView('leaderboard')">
+        <span class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Leaderboard</span>
+      </button>
+      <button class="bn-tab sb-item" onclick="switchView('myprofile')">
+        <div class="bn-avatar" id="bn-avatar">?</div><span>Profile</span>
+      </button>
+    </nav>
+
   </div><!-- #app -->
 
   <!-- Backdrop -->
@@ -1609,18 +1755,18 @@
         </div>
         <p class="err" id="f-err">Enter a valid range (min &lt; max).</p>
       </div>
-      <button class="btn-p" onclick="applyFilters()">Apply Filters ✨</button>
+      <button class="btn-p" onclick="applyFilters()">Apply Filters</button>
     </div>
   </div>
 
   <!-- Saved gifts panel -->
   <div class="panel" id="panel">
     <div class="panel-hd">
-      <h2 class="panel-title">Saved Gifts 💝</h2>
+      <h2 class="panel-title">Saved Gifts</h2>
       <button class="panel-close" onclick="closePanel()">✕</button>
     </div>
     <div class="saved-list" id="saved-list">
-      <div class="empty"><div class="empty-icon">🎀</div><p>No saved gifts yet — swipe right!</p></div>
+      <div class="empty"><p>No saved gifts yet — swipe right!</p></div>
     </div>
     <div class="panel-footer">
       <button class="panel-footer-btn btn-reset" onclick="resetSession()">↩ New search</button>
@@ -1710,16 +1856,17 @@
     // onAuthStateChange fires SIGNED_IN on every silent JWT refresh too,
     // which would otherwise repopulate S.saved and undo resetSession().
     let dbLoaded = false;
+    let landingPassed = false;
 
     sb.auth.getSession().then(({ data: { session } }) => {
       hideLoader();
-      if (session) { showApp(); if (!dbLoaded) { dbLoaded = true; loadSavedFromDb(); } }
-      else startSphere();
+      startSphere(); // always show landing first
+      if (session && !dbLoaded) { dbLoaded = true; loadSavedFromDb(); }
     }).catch(() => { hideLoader(); startSphere(); });
 
     sb.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN')  { hideAuthModal(); showApp(); if (!dbLoaded) { dbLoaded = true; loadSavedFromDb(); } }
-      if (event === 'SIGNED_OUT') { showAuth(); resetAll(); dbLoaded = false; }
+      if (event === 'SIGNED_IN' && landingPassed) { hideAuthModal(); showApp(); if (!dbLoaded) { dbLoaded = true; loadSavedFromDb(); } }
+      if (event === 'SIGNED_OUT') { landingPassed = false; showAuth(); resetAll(); dbLoaded = false; }
     });
 
     function showAuthModal() {
@@ -1752,7 +1899,17 @@
       if (user) {
         const label = user.email || user.user_metadata?.full_name || 'Signed in';
         $('sb-email').textContent = label;
-        $('sb-avatar').textContent = label[0].toUpperCase();
+        const p = loadMyProfile();
+        const initial = p.name ? p.name[0].toUpperCase() : label[0].toUpperCase();
+        if (p.photo) {
+          $('sb-avatar').innerHTML = `<img src="${p.photo}" alt="">`;
+          $('sb-avatar').style.background = 'none';
+          $('bn-avatar').innerHTML = `<img src="${p.photo}" alt="">`;
+          $('bn-avatar').style.background = 'none';
+        } else {
+          $('sb-avatar').textContent = initial;
+          $('bn-avatar').textContent = initial;
+        }
       }
     }
 
@@ -1767,8 +1924,11 @@
       if (window.__sphereImpl) window.__sphereImpl.stop();
     }
 
-    function startApp() {
-      showAuthModal();
+    async function startApp() {
+      landingPassed = true;
+      const { data: { user } } = await sb.auth.getUser();
+      if (user) { showApp(); }
+      else { showAuthModal(); }
     }
 
     /* ── AUTH ── */
@@ -1953,14 +2113,14 @@
       card.innerHTML = `
         <div class="s-overlay ov-save" id="oy"><span class="ov-label">LIKE</span></div>
         <div class="s-overlay ov-skip" id="on"><span class="ov-label">NOPE</span></div>
-        <div class="gift-card-img-ph">${esc(g.emoji)}</div>
+        <div class="gift-card-img-ph">${esc(g.category||'')}</div>
         ${g.imageUrl ? `<img class="gift-card-img" id="card-img" src="${esc(g.imageUrl)}" alt="">` : ''}
         <div class="gift-card-overlay">
-          <div class="gift-cat-badge">${esc(g.emoji)} ${esc(g.category)}</div>
+          <div class="gift-cat-badge">${esc(g.category)}</div>
           <h2 class="gift-name-big">${esc(g.name)}</h2>
           <div class="gift-footer-row">
             ${g.price ? `<span class="gift-price-big">${esc(g.price)}</span>` : ''}
-            <a href="${esc(g.productUrl || g.amazonUrl)}" target="_blank" rel="noopener" class="gift-amz-btn" onclick="event.stopPropagation()">🛒 ${esc(g.retailer || 'Amazon')}</a>
+            <a href="${esc(g.productUrl || g.amazonUrl)}" target="_blank" rel="noopener" class="gift-amz-btn" onclick="event.stopPropagation()">${esc(g.retailer || 'Shop')}</a>
           </div>
         </div>`;
       card.style.transform = ''; card.style.opacity = '1';
@@ -1976,7 +2136,7 @@
     }
 
     function renderError(msg) {
-      card.innerHTML = `<div class="c-state"><div style="font-size:40px">😬</div><p class="c-text">${esc(msg)}</p><button class="retry-btn" onclick="load()">Try again</button></div>`;
+      card.innerHTML = `<div class="c-state"><p class="c-text">${esc(msg)}</p><button class="retry-btn" onclick="load()">Try again</button></div>`;
     }
 
     /* ── DRAG ── */
@@ -2066,17 +2226,16 @@
     function renderList() {
       const el = $('saved-list');
       if (!S.saved.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon">🎀</div><p>No saved gifts yet — swipe right!</p></div>';
+        el.innerHTML = '<div class="empty"><p>No saved gifts yet — swipe right!</p></div>';
         return;
       }
       el.innerHTML = S.saved.map(g => `
         <div class="saved-item" id="si-${g.id}">
-          <span class="saved-emoji">${esc(g.emoji)}</span>
           <div style="flex:1">
             <div class="saved-name">${esc(g.name)}</div>
             <div class="saved-price">${esc(g.price)}</div>
             <div class="saved-actions">
-              <a href="${esc(g.productUrl || g.amazonUrl)}" target="_blank" rel="noopener" class="saved-link">🛒 ${esc(g.retailer || 'Amazon')}</a>
+              <a href="${esc(g.productUrl || g.amazonUrl)}" target="_blank" rel="noopener" class="saved-link">${esc(g.retailer || 'Shop')}</a>
               <button class="del-btn" onclick="removeGift('${g.id}')">Remove</button>
             </div>
           </div>
@@ -2089,7 +2248,7 @@
       const el = $('si-'+id);
       if (el) el.remove();
       updateStats();
-      if (!S.saved.length) $('saved-list').innerHTML = '<div class="empty"><div class="empty-icon">🎀</div><p>No saved gifts yet — swipe right!</p></div>';
+      if (!S.saved.length) $('saved-list').innerHTML = '<div class="empty"><p>No saved gifts yet — swipe right!</p></div>';
     }
 
     function resetSession() {
@@ -2128,11 +2287,9 @@
       document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
       $('view-' + name).classList.add('active');
-      const sbItem = document.querySelector(`.sb-item[onclick="switchView('${name}')"]`);
-      if (sbItem) sbItem.classList.add('active');
+      document.querySelectorAll(`.sb-item[onclick="switchView('${name}')"]`).forEach(b => b.classList.add('active'));
       if (name === 'rankings')    renderRankings();
       if (name === 'leaderboard') renderLeaderboard();
-      if (name === 'profiles')    renderProfiles();
       if (name === 'myprofile')   renderMyProfileView();
     }
 
@@ -2217,7 +2374,7 @@
 
       if (!sorted.length) {
         body.innerHTML = toolbar + `<div class="rankings-empty">
-          <div class="rankings-empty-icon">🏅</div>
+          <div class="rankings-empty-icon"></div>
           <h3>Your hall of fame awaits</h3>
           <p>Add gifts you've received and rate them — memorable, useful, best value, and overall.</p>
           <button class="add-gift-btn" onclick="openRankModal()" style="margin-top:8px">+ Add your first gift</button>
@@ -2307,15 +2464,14 @@
     function renderLeaderboard() {
       const body = $('leaderboard-body');
       const tabs = Object.entries(LB_DATA).map(([key, cat]) =>
-        `<button class="lb-tab${key===activeLbTab?' active':''}" onclick="setLbTab('${key}')">${cat.emoji} ${cat.label}</button>`
+        `<button class="lb-tab${key===activeLbTab?' active':''}" onclick="setLbTab('${key}')">${cat.label}</button>`
       ).join('');
 
       const cat = LB_DATA[activeLbTab];
       const rankClasses = ['gold','silver','bronze'];
       const items = cat.items.map((item, i) => `
         <div class="lb-item">
-          <div class="lb-rank${i<3?' '+rankClasses[i]:''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</div>
-          <div class="lb-emoji">${item.emoji}</div>
+          <div class="lb-rank${i<3?' '+rankClasses[i]:''}">#${i+1}</div>
           <div class="lb-info">
             <div class="lb-name">${esc(item.name)}</div>
             <div class="lb-meta">
@@ -2329,7 +2485,7 @@
 
       body.innerHTML = `
         <div class="lb-tabs">${tabs}</div>
-        <div class="lb-section-title">${cat.emoji} Top Gifts — ${cat.label}</div>
+        <div class="lb-section-title">Top Gifts — ${cat.label}</div>
         <div class="lb-list">${items}</div>`;
     }
 
@@ -2341,15 +2497,15 @@
     // Transient state for the add-wishlist row
     let wishInput      = { name: '', url: '', price: '' };
 
-    const EMOJIS = ['😊','🎸','📸','🏔️','🌿','📚','🎮','🍳','✈️','🎨','⚽','🎵','🐶','🌊','💻'];
-    let profileEmojiIdx = 0;
+    const AVATAR_COLORS = ['#1A6FFF','#FF6B6B','#F5A623','#22C55E','#A855F7','#EC4899','#0EA5E9','#F97316'];
+    let profileColorIdx = 0;
 
     function loadMyProfile() {
       try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || blankProfile(); }
       catch { return blankProfile(); }
     }
     function blankProfile() {
-      return { emoji:'😊', name:'', bio:'', brands:[], interests:[], wishlist:[], dontWant:[] };
+      return { color:'#1A6FFF', name:'', bio:'', brands:[], interests:[], wishlist:[], dontWant:[] };
     }
     function saveMyProfileLocal(p) { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }
 
@@ -2390,7 +2546,7 @@
             : '';
           feedHtml += `<div class="feed-card">
             <div class="feed-card-who">
-              <div class="feed-who-avatar">${esc(friend.emoji)}</div>
+              <div class="feed-who-avatar" style="background:${friend.color||'#1A6FFF'};color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0">${(friend.name||'?')[0].toUpperCase()}</div>
               <div>
                 <div class="feed-who-name">${esc(friend.name)}</div>
                 <div class="feed-who-sub">added to wishlist</div>
@@ -2419,7 +2575,7 @@
       const tags = [...(p.interests||[]).slice(0,3), ...(p.brands||[]).slice(0,2)]
         .map(t => `<span class="sb-popup-tag">${esc(t)}</span>`).join('');
       $('sb-popup-inner').innerHTML = `
-        <span class="sb-popup-emoji">${p.emoji}</span>
+        <span class="sb-popup-emoji" style="background:${p.color||'#1A6FFF'};color:#fff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700">${(p.name||'?')[0].toUpperCase()}</span>
         <div class="sb-popup-name">${p.name ? esc(p.name) : 'Set up your profile'}</div>
         ${p.bio ? `<div class="sb-popup-bio">${esc(p.bio)}</div>` : ''}
         ${tags ? `<div class="sb-popup-tags">${tags}</div>` : ''}
@@ -2450,9 +2606,34 @@
         </div>` : `<p style="font-size:13px;color:var(--muted)">Add your name above to unlock sharing.</p>`;
 
       return `
-        <div class="profile-name-row">
-          <div class="profile-emoji-pick" id="emoji-pick" onclick="cycleEmoji()" title="Click to change">${p.emoji}</div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+        <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+
+        <div class="profile-hdr">
+          <div class="profile-ph-wrap" onclick="triggerPhotoPick()">
+            <div class="profile-ph-circle" style="${!p.photo ? `background:${p.color||'#1A6FFF'}` : ''}">
+              ${p.photo
+                ? `<img src="${p.photo}" alt="">`
+                : `<span style="color:#fff;font-size:34px;font-weight:700">${(p.name||'?')[0].toUpperCase()}</span>`
+              }
+            </div>
+            <div class="profile-ph-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          </div>
+          <div class="profile-hdr-name">${p.name ? esc(p.name) : '<span style="color:rgba(6,6,40,0.28);font-weight:500;font-size:15px">Add your name</span>'}</div>
+          ${p.bio ? `<div class="profile-hdr-bio">${esc(p.bio)}</div>` : ''}
+          <div class="profile-stats-row">
+            <div class="profile-stat"><span class="profile-stat-n">${p.followers||0}</span><span class="profile-stat-l">Followers</span></div>
+            <div class="profile-stat"><span class="profile-stat-n">${p.following||0}</span><span class="profile-stat-l">Following</span></div>
+          </div>
+          <button class="edit-profile-btn" onclick="document.getElementById('p-name').focus();document.getElementById('p-name').scrollIntoView({behavior:'smooth',block:'center'})">Edit Profile</button>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-hd">
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            <div><div class="profile-section-title">About</div>
+            <div class="profile-section-desc">Your name and bio shown to friends</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
             <input class="t-input" type="text" id="p-name" placeholder="Your name (e.g. Alex)" value="${esc(p.name)}" maxlength="40" />
             <input class="t-input" type="text" id="p-bio" placeholder="Short bio (optional)" value="${esc(p.bio)}" maxlength="120" />
           </div>
@@ -2460,7 +2641,7 @@
 
         <div class="profile-section">
           <div class="profile-section-hd">
-            <span class="profile-section-icon">💙</span>
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
             <div><div class="profile-section-title">Favorite Brands</div>
             <div class="profile-section-desc">Brands you love — helps friends know your style</div></div>
           </div>
@@ -2474,7 +2655,7 @@
 
         <div class="profile-section">
           <div class="profile-section-hd">
-            <span class="profile-section-icon">🎯</span>
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
             <div><div class="profile-section-title">Interests & Hobbies</div>
             <div class="profile-section-desc">What you're into — photography, hiking, cooking…</div></div>
           </div>
@@ -2488,7 +2669,7 @@
 
         <div class="profile-section">
           <div class="profile-section-hd">
-            <span class="profile-section-icon">🎁</span>
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
             <div><div class="profile-section-title">Wishlist</div>
             <div class="profile-section-desc">Specific things you actually want</div></div>
           </div>
@@ -2508,7 +2689,7 @@
 
         <div class="profile-section">
           <div class="profile-section-hd">
-            <span class="profile-section-icon">🚫</span>
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>
             <div><div class="profile-section-title">Please Don't Get Me…</div>
             <div class="profile-section-desc">Saves friends from awkward misses</div></div>
           </div>
@@ -2522,14 +2703,47 @@
 
         <div class="profile-section">
           <div class="profile-section-hd">
-            <span class="profile-section-icon">🔗</span>
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
             <div><div class="profile-section-title">Share Your Profile</div>
             <div class="profile-section-desc">Give this code to friends — they paste it in their app</div></div>
           </div>
           ${shareBox}
         </div>
 
+        <div class="profile-section">
+          <div class="profile-section-hd">
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <div><div class="profile-section-title">Friends</div>
+            <div class="profile-section-desc">Add friends' profiles to find them the perfect gift</div></div>
+          </div>
+          ${(()=>{
+            const friends = loadFriends();
+            const wishItems = [];
+            friends.forEach((f,fi) => (f.profile.wishlist||[]).forEach(w => wishItems.push({friend:f.profile,friendIdx:fi,item:w,addedAt:f.addedAt})));
+            wishItems.sort((a,b)=>b.addedAt-a.addedAt);
+            let feed = '';
+            if (wishItems.length) {
+              feed = `<div class="feed-section"><div class="feed-section-label">What your friends want</div>`;
+              wishItems.forEach(({friend,friendIdx,item}) => {
+                const linkBtn = item.url ? `<a class="feed-btn-ghost" href="${esc(item.url)}" target="_blank" rel="noopener">View ↗</a>` : '';
+                feed += `<div class="feed-card">
+                  <div class="feed-card-who">
+                    <div class="feed-who-avatar" style="background:${friend.color||'#1A6FFF'};color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0">${(friend.name||'?')[0].toUpperCase()}</div>
+                    <div><div class="feed-who-name">${esc(friend.name)}</div><div class="feed-who-sub">added to wishlist</div></div>
+                  </div>
+                  <div class="feed-gift-name">${esc(item.name)}</div>
+                  ${item.price?`<div class="feed-gift-price">${esc(item.price)}</div>`:''}
+                  <div class="feed-card-btns">${linkBtn}<button class="feed-btn-primary" onclick="giftFriend(${friendIdx})">Find a gift for ${esc(friend.name.split(' ')[0])} →</button></div>
+                </div>`;
+              });
+              feed += `</div>`;
+            }
+            return feed + renderFriends();
+          })()}
+        </div>
+
         <button class="save-profile-btn" id="save-profile-btn" onclick="saveProfile()">Save Profile</button>
+        <button class="signout-btn" onclick="signOut()">Sign Out</button>
         <div style="height:32px"></div>`;
     }
 
@@ -2548,7 +2762,7 @@
       </div>`;
 
       if (!friends.length) return importBox + `<div class="profiles-empty">
-        <div class="profiles-empty-icon">👥</div>
+        <div class="profiles-empty-icon"></div>
         <h3>No friend profiles yet</h3>
         <p>Ask a friend to share their Gift Profile code and paste it above.</p>
       </div>`;
@@ -2558,7 +2772,7 @@
         const initial = (p.name || '?')[0].toUpperCase();
         const brandTags  = (p.brands||[]).map(t=>`<span class="friend-tag">${esc(t)}</span>`).join('');
         const interestTags = (p.interests||[]).map(t=>`<span class="friend-tag">${esc(t)}</span>`).join('');
-        const dontTags   = (p.dontWant||[]).map(t=>`<span class="friend-tag bad">🚫 ${esc(t)}</span>`).join('');
+        const dontTags   = (p.dontWant||[]).map(t=>`<span class="friend-tag bad">${esc(t)}</span>`).join('');
         const wishes = (p.wishlist||[]).map(w=>`<div class="friend-wish-item">
           <span class="friend-wish-dot"></span>
           <span style="flex:1">${esc(w.name)}</span>
@@ -2568,7 +2782,7 @@
 
         return `<div class="friend-card">
           <div class="friend-card-header">
-            <div class="friend-avatar">${p.emoji||initial}</div>
+            <div class="friend-avatar" style="background:${p.color||'#1A6FFF'}">${initial}</div>
             <div style="flex:1">
               <div class="friend-name">${esc(p.name||'Friend')}</div>
               ${p.bio?`<div class="friend-bio">${esc(p.bio)}</div>`:''}
@@ -2581,7 +2795,7 @@
             ${(p.dontWant||[]).length?`<div><div class="friend-section-label">Avoid These</div><div class="friend-tags">${dontTags}</div></div>`:''}
           </div>
           <div class="friend-card-footer">
-            <button class="gift-friend-btn" onclick="giftFriend(${fi})">🎁 Find gifts for ${esc(p.name||'them')}</button>
+            <button class="gift-friend-btn" onclick="giftFriend(${fi})">Find gifts for ${esc(p.name||'them')}</button>
             <button class="remove-friend-btn" onclick="removeFriend(${fi})">Remove</button>
           </div>
         </div>`;
@@ -2591,9 +2805,55 @@
     }
 
     /* ── PROFILE ACTIONS ── */
-    function cycleEmoji() {
-      profileEmojiIdx = (profileEmojiIdx + 1) % EMOJIS.length;
-      $('emoji-pick').textContent = EMOJIS[profileEmojiIdx];
+    function cycleColor() {
+      profileColorIdx = (profileColorIdx + 1) % AVATAR_COLORS.length;
+      const el = $('color-pick');
+      if (el) el.style.background = AVATAR_COLORS[profileColorIdx];
+    }
+
+    function triggerPhotoPick() {
+      const inp = $('photo-input');
+      if (inp) inp.click();
+    }
+
+    function handlePhotoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 300; canvas.height = 300;
+          const ctx = canvas.getContext('2d');
+          // Center-crop to square
+          const size = Math.min(img.width, img.height);
+          const sx = (img.width - size) / 2;
+          const sy = (img.height - size) / 2;
+          ctx.drawImage(img, sx, sy, size, size, 0, 0, 300, 300);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          const p = loadMyProfile();
+          p.photo = dataUrl;
+          saveMyProfileLocal(p);
+          syncNavAvatar(p);
+          renderMyProfileView();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function syncNavAvatar(p) {
+      const initial = (p.name || '?')[0].toUpperCase();
+      const bnAv = $('bn-avatar');
+      const sbAv = $('sb-avatar');
+      if (p.photo) {
+        if (bnAv) { bnAv.innerHTML = `<img src="${p.photo}" alt="">`; bnAv.style.background = 'none'; }
+        if (sbAv) { sbAv.innerHTML = `<img src="${p.photo}" alt="">`; sbAv.style.background = 'none'; }
+      } else {
+        if (bnAv) { bnAv.textContent = initial; bnAv.style.background = p.color || '#1A6FFF'; }
+        if (sbAv) { sbAv.textContent = initial; sbAv.style.background = p.color || '#1A6FFF'; }
+      }
     }
 
     function addTag(cat) {
@@ -2631,12 +2891,13 @@
     }
 
     function saveProfile() {
-      const emoji = $('emoji-pick')?.textContent || '😊';
+      const color = AVATAR_COLORS[profileColorIdx] || '#1A6FFF';
       const name  = $('p-name').value.trim();
       const bio   = $('p-bio').value.trim();
       const p = loadMyProfile();
-      p.emoji = emoji; p.name = name; p.bio = bio;
+      p.color = color; p.name = name; p.bio = bio;
       saveMyProfileLocal(p);
+      syncNavAvatar(p);
       const btn = $('save-profile-btn');
       btn.textContent = 'Saved ✓'; btn.classList.add('saved');
       setTimeout(() => { btn.textContent = 'Save Profile'; btn.classList.remove('saved'); }, 1800);
@@ -2672,13 +2933,13 @@
       if (existing !== -1) { errEl.textContent = 'You already have this friend\'s profile.'; errEl.style.display = 'block'; return; }
       friends.unshift({ profile, addedAt: Date.now() });
       saveFriendsLocal(friends);
-      renderProfiles();
+      renderMyProfileView();
     }
 
     function removeFriend(idx) {
       const friends = loadFriends();
       friends.splice(idx, 1);
-      saveFriendsLocal(friends); renderProfiles();
+      saveFriendsLocal(friends); renderMyProfileView();
     }
 
     function giftFriend(friendIdx) {
@@ -2716,13 +2977,13 @@
 
   </script>
 
-  <!-- Three.js sphere -->
+  <!-- Three.js product sphere -->
   <script type="module">
     import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-    import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-    import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+    import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader }   from 'three/addons/loaders/DRACOLoader.js';
+    import { FontLoader }    from 'three/addons/loaders/FontLoader.js';
+    import { TextGeometry }  from 'three/addons/geometries/TextGeometry.js';
 
     const FILES = [
       'airpods','backpack','bike','books','bouquet','camera','coffee','controller',
@@ -2731,10 +2992,11 @@
       'tennis','watch','waterbottle',
     ];
     const N = FILES.length;
-    const SPHERE_R = 2.1;
-    const golden = Math.PI * (3 - Math.sqrt(5));
+    const SPHERE_R  = 3.0;
+    // Nodes are ever on-screen if |ny| < half_height/SPHERE_R = tan(27.5°)*5/3.0 ≈ 0.87
+    const LAT_BAND  = 0.85;
+    const golden    = Math.PI * (3 - Math.sqrt(5));
 
-    // Fibonacci sphere positions (normalized)
     const positions = FILES.map((_, i) => {
       const y  = 1 - (i / (N - 1)) * 2;
       const r  = Math.sqrt(Math.max(0, 1 - y * y));
@@ -2743,240 +3005,172 @@
     });
 
     let renderer, scene, camera, sphereGroup, animId;
-    let lineMat, wireMat, textGroup, lineSegmentsMesh, wireframeMesh;
-    let scrollProgress = 0;
-    let footerRatio = 0;
+    let loadedCount = 0, pendingCallbacks = null;
 
-    // Preload all models immediately at module parse time
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/libs/draco/');
     const gltfLoader = new GLTFLoader();
     gltfLoader.setDRACOLoader(dracoLoader);
 
-    const preloaded = new Array(FILES.length).fill(null);
-    let pendingCallbacks = null;
-    let loadedCount = 0;
-
+    const preloaded = new Array(N).fill(null);
     FILES.forEach((name, i) => {
       gltfLoader.load(`/models/${name}.glb`, gltf => {
-        preloaded[i] = gltf;
-        loadedCount++;
+        preloaded[i] = gltf; loadedCount++;
         if (pendingCallbacks) pendingCallbacks(gltf, i);
       }, undefined, () => { loadedCount++; });
     });
 
     function placeModel(gltf, i) {
       if (!sphereGroup) return;
+      // Only place models in the equatorial belt — top/bottom are wiring only
+      if (Math.abs(positions[i].ny) > LAT_BAND) return;
       const model = gltf.scene;
-      const box = new THREE.Box3().setFromObject(model);
-      const size = new THREE.Vector3();
-      box.getSize(size);
-      model.scale.setScalar(0.48 / Math.max(size.x, size.y, size.z));
+      const box  = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3(); box.getSize(size);
+      model.scale.setScalar(0.55 / Math.max(size.x, size.y, size.z));
       box.setFromObject(model);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
+      const center = new THREE.Vector3(); box.getCenter(center);
       model.position.sub(center);
       const { nx, ny, nz } = positions[i];
-      const g = new THREE.Group();
-      g.add(model);
-      g.userData.modelIndex = i;
-      const exp = 1 + easeInOut(scrollProgress) * 3.5;
-      g.position.set(nx * SPHERE_R * exp, ny * SPHERE_R * exp, nz * SPHERE_R * exp);
+      const g = new THREE.Group(); g.add(model);
+      g.position.set(nx * SPHERE_R, ny * SPHERE_R, nz * SPHERE_R);
       sphereGroup.add(g);
-    }
-
-    function easeInOut(t) {
-      return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     }
 
     function init() {
       const canvas = document.getElementById('sphere-canvas');
       if (!canvas) return;
 
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setPixelRatio(1); // start low, ramp up once models are loaded
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+      renderer.setPixelRatio(1);
+      renderer.setClearColor(0xffffff, 1);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.3;
 
+      const w = canvas.clientWidth  || 390;
+      const h = canvas.clientHeight || 844;
+      renderer.setSize(w, h, false);
+
       scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0xffffff, 0.10);
+      // Lighter fog so wiring remains visible at top/bottom edges
+      scene.fog = new THREE.FogExp2(0xffffff, 0.05);
 
-      camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 50);
-      camera.position.z = 8;
+      // Camera close enough that the sphere (R=4.5) overflows all four edges
+      camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 50);
+      camera.position.z = 5;
 
-      // Lighting tuned for white background
       scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-      const key = new THREE.DirectionalLight(0xffffff, 2.5);
-      key.position.set(4, 7, 6);
-      scene.add(key);
-      const rim = new THREE.DirectionalLight(0x4488FF, 1.2);
-      rim.position.set(-6, -2, -5);
-      scene.add(rim);
-      const fill = new THREE.DirectionalLight(0xAACCFF, 0.5);
-      fill.position.set(1, -5, 4);
-      scene.add(fill);
+      const key  = new THREE.DirectionalLight(0xffffff, 2.5); key.position.set(4, 7, 6);   scene.add(key);
+      const rim  = new THREE.DirectionalLight(0x4488FF, 1.2); rim.position.set(-6, -2, -5); scene.add(rim);
+      const fill = new THREE.DirectionalLight(0xAACCFF, 0.5); fill.position.set(1, -5, 4);  scene.add(fill);
 
-      // 3D text — rendered at scene center, unaffected by fog
-      const fontLoader = new FontLoader();
-      fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.164.1/examples/fonts/optimer_bold.typeface.json', font => {
-        const makeText = (str, size) => {
-          const geo = new TextGeometry(str, {
-            font, size, depth: size * 0.22,
-            curveSegments: 10,
-            bevelEnabled: true, bevelThickness: size * 0.03,
-            bevelSize: size * 0.015, bevelSegments: 4,
+      // 3D "PERSENT" text — fixed at scene center, unaffected by fog
+      new FontLoader().load(
+        'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/fonts/optimer_bold.typeface.json',
+        font => {
+          const geo = new TextGeometry('PERSENT', {
+            font, size: 0.52, depth: 0.12,
+            curveSegments: 8,
+            bevelEnabled: true, bevelThickness: 0.022, bevelSize: 0.012, bevelSegments: 3,
           });
           geo.computeBoundingBox();
-          const center = new THREE.Vector3();
-          geo.boundingBox.getCenter(center);
-          geo.translate(-center.x, -center.y, -center.z);
-          return geo;
-        };
-
-        const mat = new THREE.MeshStandardMaterial({
-          color: 0x0A1A6C, metalness: 0.55, roughness: 0.18,
-          emissive: 0x1144CC, emissiveIntensity: 0.12, fog: false,
-        });
-
-        const g1 = makeText('Persent', 0.58);
-
-        const m1 = new THREE.Mesh(g1, mat);
-        m1.position.y = 0;
-
-        textGroup = new THREE.Group();
-        textGroup.add(m1);
-        scene.add(textGroup);
-      });
+          const cx = (geo.boundingBox.max.x + geo.boundingBox.min.x) / 2;
+          const cy = (geo.boundingBox.max.y + geo.boundingBox.min.y) / 2;
+          geo.translate(-cx, -cy, 0);
+          const mat = new THREE.MeshStandardMaterial({
+            color: 0x060628, metalness: 0.6, roughness: 0.15,
+            emissive: 0x1A6FFF, emissiveIntensity: 0.18, fog: false,
+            depthTest: false,
+          });
+          const textMesh = new THREE.Mesh(geo, mat);
+          textMesh.renderOrder = 999;
+          scene.add(textMesh);
+        }
+      );
 
       sphereGroup = new THREE.Group();
       scene.add(sphereGroup);
 
-      // Blue connecting mesh between nearby nodes
-      const linePoints = [];
+      // Connecting lines between nearby nodes
+      const pts = [];
       for (let i = 0; i < N; i++) {
         for (let j = i + 1; j < N; j++) {
           const a = positions[i], b = positions[j];
           const dx = a.nx-b.nx, dy = a.ny-b.ny, dz = a.nz-b.nz;
           if (Math.sqrt(dx*dx+dy*dy+dz*dz) < 1.05) {
-            linePoints.push(
+            pts.push(
               new THREE.Vector3(a.nx*SPHERE_R, a.ny*SPHERE_R, a.nz*SPHERE_R),
               new THREE.Vector3(b.nx*SPHERE_R, b.ny*SPHERE_R, b.nz*SPHERE_R)
             );
           }
         }
       }
-      const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
-      lineMat = new THREE.LineBasicMaterial({ color: 0x1A6FFF, transparent: true, opacity: 0.35 });
-      lineSegmentsMesh = new THREE.LineSegments(lineGeo, lineMat);
-      sphereGroup.add(lineSegmentsMesh);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x1A6FFF, transparent: true, opacity: 0.35 });
+      sphereGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
 
-      // Faint geodesic wireframe sphere
-      const geoWire = new THREE.IcosahedronGeometry(SPHERE_R * 1.05, 1);
-      wireMat = new THREE.MeshBasicMaterial({ color: 0x1A6FFF, wireframe: true, transparent: true, opacity: 0.05 });
-      wireframeMesh = new THREE.Mesh(geoWire, wireMat);
-      sphereGroup.add(wireframeMesh);
-
-      // Add already-preloaded models, then handle any still in-flight
       preloaded.forEach((gltf, i) => gltf && placeModel(gltf, i));
       pendingCallbacks = (gltf, i) => placeModel(gltf, i);
 
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+      window.addEventListener('resize', onResize);
     }
 
-    let ry = 0;
-    let lastFrame = 0;
-
-    function onLandingScroll() {
-      const el = document.getElementById('landing');
-      scrollProgress = Math.min(1, el.scrollTop / window.innerHeight);
+    function onResize() {
+      const canvas = document.getElementById('sphere-canvas');
+      if (!canvas || !renderer || !camera) return;
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      if (!w || !h) return;
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
     }
+
+    let ry = 0, lastFrame = 0, uiReady = false;
 
     function loop(now) {
       animId = requestAnimationFrame(loop);
-
-      // Throttle to 30fps while models are still loading to free up CPU for decode
-      const allLoaded = loadedCount >= FILES.length;
-      const minInterval = allLoaded ? 0 : 33;
-      if (now - lastFrame < minInterval) return;
+      const allLoaded = loadedCount >= N;
+      if (!allLoaded && now - lastFrame < 33) return;
       lastFrame = now;
 
-      // Boost pixel ratio once loading is done
-      if (allLoaded && renderer) {
-        const targetPR = Math.min(window.devicePixelRatio, 2);
-        if (renderer.getPixelRatio() < targetPR) renderer.setPixelRatio(targetPR);
-      }
+      if (!uiReady) {
+        const fill = document.getElementById('ls-fill');
+        if (fill) fill.style.width = ((loadedCount / N) * 100) + '%';
 
-      const t = easeInOut(scrollProgress);
-
-      // Slow rotation to stop as sphere explodes
-      ry += 0.003 * (1 - t);
-      sphereGroup.rotation.y = ry;
-
-      // Pull camera back so exploding models stay in view
-      camera.position.z = 8 + t * 4;
-
-      // Explode models outward, and fade them out when footer is in view
-      const exp = 1 + t * 3.5;
-      const productAlpha = Math.max(0, 1 - footerRatio * 3);
-      sphereGroup.children.forEach(child => {
-        if (child.userData.modelIndex !== undefined) {
-          const { nx, ny, nz } = positions[child.userData.modelIndex];
-          child.position.set(nx * SPHERE_R * exp, ny * SPHERE_R * exp, nz * SPHERE_R * exp);
-          child.visible = productAlpha > 0;
-          if (productAlpha < 1) {
-            child.traverse(obj => {
-              if (obj.isMesh && obj.material) {
-                obj.material.transparent = true;
-                obj.material.opacity = productAlpha;
-              }
-            });
-          }
+        if (allLoaded) {
+          uiReady = true;
+          if (renderer) renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          setTimeout(() => {
+            const ov = document.getElementById('ls-overlay');
+            if (ov) {
+              ov.classList.add('ls-out');
+              setTimeout(() => { if (ov) ov.style.display = 'none'; }, 780);
+            }
+            setTimeout(() => {
+              const tap = document.getElementById('landing-tap');
+              if (tap) tap.classList.add('tap-in');
+            }, 350);
+          }, 420);
         }
-      });
-
-      // Expand mesh and wireframe with the explosion
-      if (lineSegmentsMesh) lineSegmentsMesh.scale.setScalar(exp);
-      if (wireframeMesh) wireframeMesh.scale.setScalar(exp);
-
-      // Fade 3D text
-      if (textGroup) {
-        textGroup.children.forEach(m => {
-          m.material.transparent = true;
-          m.material.opacity = Math.max(0, 1 - t * 2.5);
-        });
       }
 
+      ry += 0.003;
+      sphereGroup.rotation.y = ry;
       renderer.render(scene, camera);
     }
 
-    function start() {
-      init();
-      const landingEl = document.getElementById('landing');
-      landingEl.addEventListener('scroll', onLandingScroll);
-
-      const footerEl = document.querySelector('.landing-footer');
-      if (footerEl) {
-        const thresholds = Array.from({ length: 21 }, (_, i) => i / 20);
-        new IntersectionObserver(entries => {
-          footerRatio = entries[0].intersectionRatio;
-        }, { root: landingEl, threshold: thresholds }).observe(footerEl);
-      }
-
-      loop();
-    }
+    function start() { init(); loop(); }
 
     function stop() {
       if (animId) { cancelAnimationFrame(animId); animId = null; }
-      const el = document.getElementById('landing');
-      if (el) { el.removeEventListener('scroll', onLandingScroll); el.scrollTop = 0; }
-      scrollProgress = 0;
       if (renderer) { renderer.dispose(); renderer = null; }
+      window.removeEventListener('resize', onResize);
+      uiReady = false;
+      const ov = document.getElementById('ls-overlay');
+      if (ov) { ov.classList.remove('ls-out'); ov.style.display = ''; }
+      const fill = document.getElementById('ls-fill');
+      if (fill) fill.style.width = '0%';
+      const tap = document.getElementById('landing-tap');
+      if (tap) tap.classList.remove('tap-in');
     }
 
     window.__sphereImpl = { start, stop };
