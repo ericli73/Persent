@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Persent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="importmap">
   {
@@ -36,7 +36,7 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Public Sans', -apple-system, sans-serif;
       background: #fff;
       overflow: hidden;
     }
@@ -55,9 +55,16 @@
       border-radius: 50%; animation: spin .75s linear infinite;
     }
 
-    /* ── AUTH MODAL ── */
-    #auth-modal-overlay {
-      position: fixed; inset: 0; z-index: 300;
+    /* ── AUTH MODAL (shared with username setup) ── */
+    #auth-modal-overlay, #username-modal-overlay {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(390px, 100vw);
+      height: min(844px, 100dvh);
+      border-radius: 32px;
+      overflow: hidden;
+      z-index: 300;
       background: rgba(6,6,32,0.38);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -66,8 +73,11 @@
       opacity: 0;
       transition: opacity 0.22s ease;
     }
-    #auth-modal-overlay.hidden { display: none; }
-    #auth-modal-overlay.visible { opacity: 1; }
+    #auth-modal-overlay.hidden, #username-modal-overlay.hidden { display: none; }
+    #auth-modal-overlay.visible, #username-modal-overlay.visible { opacity: 1; }
+    @media (max-width: 430px) {
+      #auth-modal-overlay, #username-modal-overlay { top: 0; left: 0; transform: none; width: 100%; height: 100dvh; border-radius: 0; }
+    }
 
     .auth-modal {
       background: #fff;
@@ -81,7 +91,7 @@
       transform: translateY(20px) scale(0.97);
       transition: transform 0.35s cubic-bezier(0.23,1,0.32,1);
     }
-    #auth-modal-overlay.visible .auth-modal { transform: translateY(0) scale(1); }
+    #auth-modal-overlay.visible .auth-modal, #username-modal-overlay.visible .auth-modal { transform: translateY(0) scale(1); }
 
     .auth-close {
       position: absolute; top: 14px; right: 14px;
@@ -96,7 +106,7 @@
     .auth-brand { text-align: center; margin-bottom: 24px; }
     .auth-logo  { font-size: 36px; display: block; margin-bottom: 10px; }
     .auth-title {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 26px; font-weight: 700; color: #060620;
       margin: 0 0 5px;
     }
@@ -108,7 +118,7 @@
       border-radius: 12px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       gap: 10px; font-size: 14px; font-weight: 600;
-      color: #060620; font-family: 'Inter', sans-serif;
+      color: #060620; font-family: 'Public Sans', sans-serif;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
     .auth-google:hover, .auth-option-btn:hover { border-color: rgba(6,6,32,0.24); box-shadow: 0 2px 12px rgba(6,6,32,0.07); }
@@ -126,7 +136,7 @@
 
     .auth-back {
       background: none; border: none; cursor: pointer;
-      color: rgba(6,6,32,0.45); font-size: 13px; font-family: 'Inter', sans-serif;
+      color: rgba(6,6,32,0.45); font-size: 13px; font-family: 'Public Sans', sans-serif;
       padding: 0 0 16px; display: flex; align-items: center; gap: 4px;
       transition: color 0.15s;
     }
@@ -142,7 +152,7 @@
     .t-input {
       width: 100%; padding: 13px 15px; box-sizing: border-box;
       border: 1.5px solid rgba(6,6,32,0.12); border-radius: 11px;
-      font-family: 'Inter', sans-serif; font-size: 14px; color: #060620;
+      font-family: 'Public Sans', sans-serif; font-size: 14px; color: #060620;
       background: #fff; outline: none; transition: border-color 0.15s;
     }
     .t-input:focus { border-color: #1A6FFF; }
@@ -152,7 +162,7 @@
       width: 100%; padding: 14px; margin-top: 4px;
       background: linear-gradient(135deg, #1A6FFF, #0044CC);
       color: #fff; border: none; border-radius: 11px;
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+      font-family: 'Public Sans', sans-serif; font-size: 14px; font-weight: 600;
       cursor: pointer;
       box-shadow: 0 4px 18px rgba(26,111,255,0.32);
       transition: transform 0.15s, box-shadow 0.15s;
@@ -217,7 +227,7 @@
     }
     .sb-brand-icon { font-size: 22px; }
     .sb-brand-name {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 17px; font-weight: 800; color: #060628; letter-spacing: -0.3px;
     }
     .sb-nav {
@@ -228,7 +238,7 @@
       display: flex; align-items: center; gap: 11px;
       padding: 10px 12px; border-radius: 10px;
       border: none; background: none; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 500;
+      font-family: 'Public Sans', sans-serif; font-size: 13.5px; font-weight: 500;
       color: rgba(6,6,40,0.45); text-align: left; width: 100%;
       transition: background .15s, color .15s;
     }
@@ -283,7 +293,7 @@
       display: flex; align-items: center; gap: 8px;
       width: 100%; padding: 9px 12px; border: none; border-radius: 9px;
       background: none; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+      font-family: 'Public Sans', sans-serif; font-size: 13px; font-weight: 500;
       color: rgba(6,6,40,0.4); text-align: left;
       transition: background .15s, color .15s;
     }
@@ -352,7 +362,7 @@
       background: #fff;
     }
     .view-title {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 28px; font-weight: 800; color: #060628; letter-spacing: -0.5px;
       margin-bottom: 4px;
     }
@@ -370,6 +380,15 @@
     .step-dot.active { background: var(--primary); width: 24px; }
     .step-dot:not(.active) { width: 6px; }
 
+    .setup-btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    .setup-btn-row .btn-p { flex: 1; margin-top: 0 !important; }
+    .btn-back {
+      padding: 12px 18px; border-radius: 12px; border: 1.5px solid rgba(6,6,40,0.13);
+      background: transparent; font-size: 14px; font-weight: 600; color: rgba(6,6,40,0.45);
+      cursor: pointer; transition: all .15s; font-family: 'Public Sans', sans-serif;
+    }
+    .btn-back:hover { border-color: rgba(6,6,40,0.28); color: rgba(6,6,40,0.7); }
+
     .setup-card {
       background: #fff; border-radius: 18px;
       padding: 32px; width: 100%; max-width: 500px;
@@ -382,14 +401,14 @@
       width: 44px; height: 44px; flex-shrink: 0; background: var(--bg);
       border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;
     }
-    .card-hd-text h2 { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .card-hd-text h2 { font-family: 'Public Sans', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
     .card-hd-text p { color: var(--muted); font-size: 13px; }
 
     .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .opt-btn {
       padding: 15px 16px; background: #fff;
       border: 1.5px solid var(--border); border-radius: 12px;
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+      font-family: 'Public Sans', sans-serif; font-size: 14px; font-weight: 500;
       color: var(--text); cursor: pointer; text-align: left;
       transition: border-color .15s, background .15s, color .15s;
     }
@@ -468,11 +487,10 @@
       background: #fff;
     }
     .gift-card-img.img-ready { opacity: 1; }
-    /* Emoji placeholder — always visible behind the image */
+    /* White placeholder behind the image — fades into product photo */
     .gift-card-img-ph {
       position: absolute; inset: 0;
-      background: linear-gradient(145deg, #1e2a5e 0%, #2d1b69 50%, #1a3a5c 100%);
-      display: flex; align-items: center; justify-content: center; font-size: 120px;
+      background: #fff;
     }
 
     /* Bottom gradient — deep enough to always be readable over any photo */
@@ -497,7 +515,7 @@
       width: fit-content;
     }
     .gift-name-big {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 22px; font-weight: 700; color: #fff;
       line-height: 1.25; margin-bottom: 6px;
     }
@@ -506,7 +524,7 @@
       display: flex; align-items: center; justify-content: space-between; gap: 10px;
     }
     .gift-price-big {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 22px; font-weight: 700; color: #fff;
     }
     .gift-amz-btn {
@@ -516,7 +534,7 @@
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.26);
       color: #fff; font-size: 12px; font-weight: 600;
-      text-decoration: none; font-family: 'Inter', sans-serif;
+      text-decoration: none; font-family: 'Public Sans', sans-serif;
       transition: background .15s; white-space: nowrap;
     }
     .gift-amz-btn:hover { background: rgba(255,255,255,0.26); }
@@ -530,7 +548,7 @@
     .ov-save { justify-content: flex-start; }
     .ov-skip { justify-content: flex-end; }
     .ov-label {
-      font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800;
+      font-family: 'Public Sans', sans-serif; font-size: 32px; font-weight: 800;
       padding: 6px 14px; border-radius: 9px; border: 3px solid;
       letter-spacing: 0.04em;
     }
@@ -540,35 +558,6 @@
     .c-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #fff; border-radius: 20px; text-align: center; padding: 24px; z-index: 5; }
     .c-text { color: var(--muted); font-size: 14px; }
     .retry-btn { padding: 9px 20px; background: var(--primary); color: white; border: none; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
-
-    /* Action buttons — prominent, filled */
-    .actions {
-      display: flex; align-items: center; justify-content: center;
-      gap: 22px; width: 100%; max-width: 400px; flex-shrink: 0;
-    }
-    .act-btn {
-      border-radius: 50%; border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: transform .15s, box-shadow .15s;
-    }
-    .act-btn:hover { transform: scale(1.1); }
-    .act-btn:active { transform: scale(.9); }
-    .act-btn:disabled { opacity: .4; pointer-events: none; }
-    .btn-skip {
-      width: 62px; height: 62px;
-      background: #fff; color: var(--decline); font-size: 22px;
-      box-shadow: 0 4px 18px rgba(224,82,82,0.20), 0 2px 8px rgba(6,6,40,0.08);
-      border: 2px solid rgba(224,82,82,0.18);
-    }
-    .btn-save {
-      width: 76px; height: 76px;
-      background: linear-gradient(135deg, #4CAF79 0%, #3a9c6a 100%);
-      color: #fff; font-size: 30px;
-      box-shadow: 0 6px 28px rgba(76,175,121,0.45);
-    }
-
-    .hint { font-size: 11px; color: var(--muted); opacity: .6; flex-shrink: 0; }
-    .hint kbd { background: rgba(6,6,40,.06); border-radius: 4px; padding: 2px 5px; font-family: inherit; }
 
     .dating-bottom { display: flex; gap: 10px; width: 100%; max-width: 400px; flex-shrink: 0; }
     .bottom-btn {
@@ -583,7 +572,7 @@
     .backdrop { position: fixed; inset: 0; background: rgba(6,6,40,.22); z-index: 99; opacity: 0; pointer-events: none; transition: opacity .3s; }
     .backdrop.on { opacity: 1; pointer-events: auto; }
     .panel {
-      position: fixed; bottom: 0; left: 220px; right: 0;
+      position: fixed; bottom: 0; left: 0; right: 0;
       background: white; border-radius: 20px 20px 0 0;
       box-shadow: 0 -8px 32px rgba(6,6,40,.1);
       transform: translateY(100%);
@@ -601,12 +590,12 @@
     }
     .filter-panel.open { transform: translateX(0); }
     .panel-hd { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-    .panel-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--text); }
+    .panel-title { font-family: 'Public Sans', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
     .panel-close { background: var(--bg); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 15px; }
     .saved-list { overflow-y: auto; flex: 1; padding: 14px 20px; display: flex; flex-direction: column; gap: 10px; }
     .saved-item { display: flex; gap: 12px; padding: 14px; background: var(--bg); border-radius: 12px; align-items: flex-start; }
     .saved-emoji { font-size: 26px; flex-shrink: 0; }
-    .saved-name { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--text); margin-bottom: 2px; font-size: 14px; }
+    .saved-name { font-family: 'Public Sans', sans-serif; font-weight: 700; color: var(--text); margin-bottom: 2px; font-size: 14px; }
     .saved-price { font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 8px; }
     .saved-actions { display: flex; gap: 6px; }
     .saved-link { display: inline-flex; align-items: center; gap: 4px; background: var(--primary); color: white; padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 600; text-decoration: none; }
@@ -615,7 +604,7 @@
     .empty { text-align: center; color: var(--muted); padding: 32px 0; }
     .empty-icon { font-size: 40px; margin-bottom: 10px; }
     .panel-footer { padding: 10px 20px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; }
-    .panel-footer-btn { flex: 1; padding: 11px; border: none; border-radius: 11px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; font-family: 'Inter', sans-serif; }
+    .panel-footer-btn { flex: 1; padding: 11px; border: none; border-radius: 11px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; font-family: 'Public Sans', sans-serif; }
     .btn-reset { background: var(--bg); color: var(--muted); }
     .btn-reset:hover { background: var(--border); }
     .btn-signout { background: #EDF2FF; color: var(--primary); }
@@ -632,7 +621,7 @@
     .sort-tabs { display: flex; gap: 4px; }
     .sort-tab {
       padding: 7px 14px; border-radius: 50px; border: none; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+      font-family: 'Public Sans', sans-serif; font-size: 12px; font-weight: 600;
       background: rgba(6,6,40,0.05); color: rgba(6,6,40,0.45);
       transition: background .15s, color .15s;
     }
@@ -641,7 +630,7 @@
       display: flex; align-items: center; gap: 7px;
       padding: 9px 18px; border-radius: 50px; border: none; cursor: pointer;
       background: var(--primary); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      font-family: 'Public Sans', sans-serif; font-size: 13px; font-weight: 600;
       transition: background .15s; box-shadow: 0 2px 12px rgba(26,111,255,0.25);
     }
     .add-gift-btn:hover { background: var(--ph); }
@@ -654,12 +643,12 @@
       box-shadow: 0 1px 8px rgba(6,6,40,0.04);
     }
     .rank-num {
-      font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800;
+      font-family: 'Public Sans', sans-serif; font-size: 22px; font-weight: 800;
       color: rgba(6,6,40,0.15); min-width: 30px; line-height: 1;
     }
     .rank-num.top { color: var(--primary); }
     .rank-info { flex: 1; }
-    .rank-name { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .rank-name { font-family: 'Public Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
     .rank-meta { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
     .rank-bars { display: flex; flex-direction: column; gap: 5px; }
     .rank-bar-row { display: flex; align-items: center; gap: 8px; }
@@ -676,7 +665,7 @@
       gap: 12px; color: var(--muted); text-align: center; padding: 60px 20px;
     }
     .rankings-empty-icon { font-size: 52px; }
-    .rankings-empty h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--text); margin: 4px 0; }
+    .rankings-empty h3 { font-family: 'Public Sans', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); margin: 4px 0; }
     .rankings-empty p { font-size: 14px; max-width: 280px; line-height: 1.5; }
 
     /* Rank modal */
@@ -705,16 +694,34 @@
       transition: background .15s;
     }
     .rank-modal-close:hover { background: rgba(6,6,32,0.11); }
-    .rank-modal h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .rank-modal h2 { font-family: 'Public Sans', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .rank-modal > p { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
     .rm-field { margin-bottom: 14px; }
     .rm-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
     .rm-select {
       width: 100%; padding: 11px 14px; border: 1.5px solid rgba(6,6,32,0.12); border-radius: 10px;
-      font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text);
+      font-family: 'Public Sans', sans-serif; font-size: 14px; color: var(--text);
       background: #fff; outline: none; cursor: pointer;
     }
     .rm-select:focus { border-color: var(--primary); }
+    .rank-overall-row { display: flex; align-items: center; gap: 8px; margin: 6px 0 4px; }
+    .rank-overall-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .rank-overall-val { font-size: 15px; font-weight: 700; color: var(--primary); }
+
+    .rm-suggest {
+      position: absolute; top: calc(100% + 2px); left: 0; right: 0;
+      background: #fff; border: 1px solid rgba(6,6,40,0.1); border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(6,6,40,0.12); z-index: 50; overflow: hidden;
+    }
+    .rm-suggest.hidden { display: none; }
+    .rm-suggest-item {
+      padding: 10px 14px; font-size: 14px; color: var(--text); cursor: pointer;
+      border-bottom: 1px solid rgba(6,6,40,0.06);
+    }
+    .rm-suggest-item:last-child { border-bottom: none; }
+    .rm-suggest-item:hover { background: var(--ph); }
+    .rm-suggest-item em { font-style: normal; color: var(--primary); font-weight: 600; }
+
     .rm-ratings { margin: 18px 0 22px; display: flex; flex-direction: column; gap: 12px; }
     .rm-rating-row { display: flex; align-items: center; gap: 12px; }
     .rm-rating-label { font-size: 13px; font-weight: 500; color: var(--text); width: 110px; flex-shrink: 0; }
@@ -728,22 +735,32 @@
     .star-btn:hover { transform: scale(1.2); }
 
     /* ── LEADERBOARD ── */
-    .lb-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
-    .lb-tab {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 50px; border: 1.5px solid rgba(6,6,40,0.1);
-      background: #fff; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
-      color: rgba(6,6,40,0.5); transition: all .15s;
+    .lb-filter-bar {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 14px;
+      scrollbar-width: none; -ms-overflow-style: none;
     }
-    .lb-tab:hover { border-color: var(--primary); color: var(--primary); }
-    .lb-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .lb-filter-bar::-webkit-scrollbar { display: none; }
+    .lb-filter-chip {
+      flex-shrink: 0; padding: 6px 14px; border-radius: 50px;
+      border: 1.5px solid rgba(6,6,40,0.13); background: #fff;
+      font-family: 'Public Sans', sans-serif; font-size: 12px; font-weight: 500;
+      color: rgba(6,6,40,0.55); cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .lb-filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .lb-filter-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
 
-    .lb-section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px; font-weight: 700; color: var(--text);
-      margin-bottom: 14px; margin-top: 8px;
+    /* ── RANK TAG CHIPS ── */
+    .rm-tag-group { margin-bottom: 12px; }
+    .rm-tag-group-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .rm-tag-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rm-tag-chip {
+      padding: 5px 12px; border-radius: 50px; border: 1.5px solid rgba(6,6,40,0.13);
+      background: transparent; font-family: 'Public Sans', sans-serif; font-size: 12px;
+      font-weight: 500; color: rgba(6,6,40,0.55); cursor: pointer; transition: all .15s;
     }
+    .rm-tag-chip.active { border-color: var(--primary); background: rgba(26,111,255,0.08); color: var(--primary); font-weight: 600; }
+    .rank-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .rank-tag-pill { padding: 2px 8px; border-radius: 50px; background: rgba(26,111,255,0.08); color: var(--primary); font-size: 11px; font-weight: 500; }
     .lb-list { display: flex; flex-direction: column; gap: 8px; }
     .lb-item {
       background: #fff; border-radius: 14px; padding: 16px 20px;
@@ -754,7 +771,7 @@
     }
     .lb-item:hover { box-shadow: 0 3px 16px rgba(6,6,40,0.09); }
     .lb-rank {
-      font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 800;
+      font-family: 'Public Sans', sans-serif; font-size: 20px; font-weight: 800;
       color: rgba(6,6,40,0.15); min-width: 28px; text-align: center;
     }
     .lb-rank.gold { color: #F59E0B; }
@@ -798,7 +815,7 @@
     .feed-btn-ghost {
       padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 600;
       border: 1.5px solid rgba(6,6,40,0.12); background: #fff; color: #060628;
-      cursor: pointer; font-family: 'Inter', sans-serif; text-decoration: none;
+      cursor: pointer; font-family: 'Public Sans', sans-serif; text-decoration: none;
       display: inline-flex; align-items: center;
       transition: border-color 0.15s;
     }
@@ -806,7 +823,7 @@
     .feed-btn-primary {
       flex: 1; padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 600;
       background: linear-gradient(135deg, #1A6FFF, #0044CC);
-      color: #fff; border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+      color: #fff; border: none; cursor: pointer; font-family: 'Public Sans', sans-serif;
       transition: opacity 0.15s;
     }
     .feed-btn-primary:hover { opacity: 0.9; }
@@ -834,7 +851,7 @@
     }
     .profiles-tab {
       padding: 10px 20px 11px; border: none; background: none; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 500;
+      font-family: 'Public Sans', sans-serif; font-size: 13.5px; font-weight: 500;
       color: rgba(6,6,40,0.4); border-bottom: 2px solid transparent;
       margin-bottom: -1px; transition: color .15s, border-color .15s;
     }
@@ -855,7 +872,7 @@
     .tag-add-btn {
       padding: 0 16px; border: none; border-radius: 10px; cursor: pointer;
       background: var(--primary); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      font-family: 'Public Sans', sans-serif; font-size: 13px; font-weight: 600;
       white-space: nowrap; flex-shrink: 0;
       transition: background .15s;
     }
@@ -896,26 +913,6 @@
     }
     .wishlist-item-del:hover { color: var(--decline); }
 
-    .profile-share-box {
-      background: linear-gradient(135deg, #EDF2FF, #E4EDFF);
-      border: 1px solid rgba(26,111,255,0.15); border-radius: 14px;
-      padding: 20px 22px; display: flex; align-items: center;
-      gap: 14px; margin-top: 8px;
-    }
-    .share-code {
-      flex: 1; font-family: 'Courier New', monospace; font-size: 12px;
-      color: #060628; background: #fff; border-radius: 8px;
-      padding: 8px 12px; border: 1px solid var(--border);
-      word-break: break-all; max-height: 44px; overflow: hidden;
-    }
-    .share-copy-btn {
-      padding: 9px 16px; border-radius: 10px; border: none; cursor: pointer;
-      background: var(--primary); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
-      white-space: nowrap; flex-shrink: 0; transition: background .15s;
-    }
-    .share-copy-btn:hover { background: var(--ph); }
-
     /* Friends view */
     .import-box {
       background: #fff; border: 1px solid rgba(6,6,40,0.08);
@@ -940,9 +937,9 @@
       width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
       background: linear-gradient(135deg, #6366F1, #4338CA);
       display: flex; align-items: center; justify-content: center;
-      font-size: 19px; color: #fff; font-weight: 700; font-family: 'Playfair Display', serif;
+      font-size: 19px; color: #fff; font-weight: 700; font-family: 'Public Sans', sans-serif;
     }
-    .friend-name { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .friend-name { font-family: 'Public Sans', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
     .friend-bio { font-size: 12px; color: var(--muted); line-height: 1.4; }
     .friend-card-body { padding: 0 20px 16px; display: flex; flex-direction: column; gap: 12px; }
     .friend-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(6,6,40,0.3); margin-bottom: 5px; }
@@ -968,7 +965,7 @@
       display: flex; align-items: center; gap: 7px;
       padding: 9px 18px; border-radius: 50px; border: none; cursor: pointer;
       background: var(--primary); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      font-family: 'Public Sans', sans-serif; font-size: 13px; font-weight: 600;
       transition: background .15s; box-shadow: 0 2px 10px rgba(26,111,255,0.22);
     }
     .gift-friend-btn:hover { background: var(--ph); }
@@ -984,7 +981,7 @@
       gap: 10px; color: var(--muted); text-align: center; padding: 48px 20px;
     }
     .profiles-empty-icon { font-size: 48px; }
-    .profiles-empty h3 { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; color: var(--text); margin: 4px 0; }
+    .profiles-empty h3 { font-family: 'Public Sans', sans-serif; font-size: 19px; font-weight: 700; color: var(--text); margin: 4px 0; }
     .profiles-empty p { font-size: 14px; max-width: 260px; line-height: 1.5; }
 
     /* ── profile header ── */
@@ -1013,6 +1010,12 @@
     .profile-hdr-name {
       font-size: 17px; font-weight: 700; color: #060628; letter-spacing: -0.01em;
     }
+    .profile-hdr-username { font-size: 13px; color: rgba(6,6,40,0.38); font-weight: 500; margin-top: -1px; }
+    .username-result {
+      display: flex; align-items: center; gap: 12px; margin-top: 10px;
+      padding: 12px 14px; border-radius: 12px;
+      background: rgba(26,111,255,0.04); border: 1px solid rgba(26,111,255,0.12);
+    }
     .profile-hdr-bio {
       font-size: 13px; color: rgba(6,6,40,0.5); text-align: center;
       max-width: 230px; line-height: 1.45; margin-top: 1px;
@@ -1026,7 +1029,7 @@
     .edit-profile-btn {
       padding: 8px 28px; border-radius: 9px;
       border: 1.5px solid rgba(6,6,40,0.2); background: transparent;
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      font-family: 'Public Sans', sans-serif; font-size: 13px; font-weight: 600;
       color: #060628; cursor: pointer; transition: border-color .15s, color .15s;
     }
     .edit-profile-btn:hover { border-color: #1A6FFF; color: #1A6FFF; }
@@ -1043,7 +1046,7 @@
     .save-profile-btn {
       padding: 11px 24px; border: none; border-radius: 11px; cursor: pointer;
       background: var(--primary); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+      font-family: 'Public Sans', sans-serif; font-size: 14px; font-weight: 600;
       transition: background .15s; box-shadow: 0 2px 12px rgba(26,111,255,0.22);
     }
     .save-profile-btn:hover { background: var(--ph); }
@@ -1051,7 +1054,7 @@
     .signout-btn {
       margin-top: 8px; padding: 11px 24px; border: 1.5px solid rgba(6,6,40,0.15); border-radius: 11px; cursor: pointer;
       background: transparent; color: rgba(6,6,40,0.55);
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
+      font-family: 'Public Sans', sans-serif; font-size: 14px; font-weight: 500;
       transition: border-color .15s, color .15s;
     }
     .signout-btn:hover { border-color: #e53e3e; color: #e53e3e; }
@@ -1071,8 +1074,6 @@
     @media (max-width: 500px) {
       .auth-modal { padding: 26px 22px 20px; }
       .opt-grid { grid-template-columns: 1fr; }
-      .hint { display: none; }
-      .panel { left: 0; }
     }
 
     /* ══ LANDING PAGE ══ */
@@ -1103,7 +1104,7 @@
     }
     #ls-overlay.ls-out { opacity: 0; }
     #ls-brand {
-      font-family: 'Inter', sans-serif; font-weight: 800;
+      font-family: 'Public Sans', sans-serif; font-weight: 800;
       font-size: 28px; letter-spacing: 0.14em; color: #060628;
     }
     #ls-track {
@@ -1115,14 +1116,16 @@
       background: #1A6FFF;
       transition: width 0.22s cubic-bezier(0.4,0,0.2,1);
     }
+    @keyframes tapFadeIn { from { opacity: 0; } to { opacity: 0.55; } }
+    @keyframes tapPulse  { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.18; } }
     .landing-tap {
       position: absolute; bottom: 52px; left: 0; right: 0;
       text-align: center; margin: 0; pointer-events: none;
       font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
-      color: rgba(6,6,40,0.38);
-      opacity: 0; transition: opacity 0.6s ease;
+      color: rgba(6,6,40,0.55);
+      opacity: 0;
     }
-    .landing-tap.tap-in { opacity: 1; }
+    .landing-tap.tap-in { animation: tapFadeIn 0.6s ease forwards, tapPulse 2s ease-in-out 0.6s infinite; }
     @keyframes landingOut { to { opacity: 0; transform: translate(-50%,-50%) scale(0.97); } }
     .landing-exit { animation: landingOut 0.3s ease forwards; pointer-events: none; }
 
@@ -1143,7 +1146,7 @@
     .landing-nav > * { pointer-events: auto; }
     .nav-logo {
       display: flex; align-items: center; gap: 10px;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 22px; font-weight: 800; color: #0a0a2e;
       text-decoration: none; letter-spacing: -0.3px;
     }
@@ -1169,7 +1172,7 @@
       text-align: center;
     }
     .s2-headline h2 {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 58px; font-weight: 800; line-height: 1.1; letter-spacing: -1.5px;
       background: linear-gradient(160deg, #060620 20%, rgba(6,6,40,0.5) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -1191,7 +1194,7 @@
       border-radius: 20px; padding: 32px 28px; text-align: center;
     }
     .s2-card-icon { font-size: 36px; margin-bottom: 16px; }
-    .s2-card h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #060620; margin: 0 0 10px; }
+    .s2-card h3 { font-family: 'Public Sans', sans-serif; font-size: 20px; font-weight: 700; color: #060620; margin: 0 0 10px; }
     .s2-card p { font-size: 14px; color: rgba(6,20,60,0.5); line-height: 1.6; margin: 0; }
     .s2-cta {
       background: linear-gradient(135deg, #1A6FFF, #0044CC);
@@ -1220,7 +1223,7 @@
       color: #1A6FFF; margin-bottom: 4px;
     }
     .occasions-title {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Public Sans', sans-serif;
       font-size: 48px; font-weight: 700; color: #060620;
       margin: 0; text-align: center; line-height: 1.15;
     }
@@ -1290,7 +1293,7 @@
       flex-wrap: wrap;
     }
     .footer-brand { display: flex; flex-direction: column; gap: 10px; }
-    .footer-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #060620; }
+    .footer-logo { font-family: 'Public Sans', sans-serif; font-size: 20px; font-weight: 700; color: #060620; }
     .footer-logo span { margin-right: 6px; }
     .footer-tagline { font-size: 13px; max-width: 200px; line-height: 1.5; color: rgba(6,6,40,0.45); }
     .footer-links { display: flex; gap: 48px; flex-wrap: wrap; }
@@ -1329,10 +1332,7 @@
   <!-- ══ LANDING ══ -->
   <div id="landing" class="hidden" onclick="startApp()">
     <canvas id="sphere-canvas"></canvas>
-    <div id="ls-overlay">
-      <p id="ls-brand">PERSENT</p>
-      <div id="ls-track"><div id="ls-fill"></div></div>
-    </div>
+    <div id="ls-overlay"></div>
     <p class="landing-tap" id="landing-tap">Tap to start</p>
   </div>
 
@@ -1572,6 +1572,32 @@
     </div>
   </div>
 
+  <!-- ══ USERNAME SETUP (mandatory, first sign-in only) ══ -->
+  <div id="username-modal-overlay" class="hidden">
+    <div class="auth-modal">
+      <div class="auth-brand">
+        <span class="auth-logo">🎁</span>
+        <h2 class="auth-title">Choose a username</h2>
+        <p class="auth-tag">This is how friends find and follow you.</p>
+      </div>
+
+      <div class="auth-field">
+        <div style="position:relative">
+          <span style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:rgba(6,6,32,0.35);font-size:14px;pointer-events:none;user-select:none">@</span>
+          <input class="t-input" type="text" id="username-setup-input" placeholder="username" maxlength="20" autocomplete="off"
+            style="padding-left:28px"
+            oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9._-]/g,'')"
+            onkeydown="if(event.key==='Enter')submitUsernameSetup()" />
+        </div>
+        <p style="font-size:11px;color:rgba(6,6,32,0.4);margin-top:8px;line-height:1.5">3–20 characters: letters, numbers, periods, underscores, hyphens. Can't start or end with a symbol.</p>
+      </div>
+
+      <button class="btn-p" id="username-setup-submit" onclick="submitUsernameSetup()">Continue</button>
+      <div class="auth-msg" id="username-setup-msg"></div>
+      <div class="auth-toggle" style="margin-top:18px"><span onclick="signOut()">Sign out instead</span></div>
+    </div>
+  </div>
+
   <!-- ══ MAIN APP ══ -->
   <div id="app" class="hidden">
 
@@ -1583,13 +1609,13 @@
       </div>
       <div class="sb-nav">
         <button class="sb-item active" onclick="switchView('dating')">
-          <span class="sb-item-icon"></span><span>Gift Dating</span>
+          <span class="sb-item-icon"></span><span>Discover</span>
         </button>
         <button class="sb-item" onclick="switchView('rankings')">
-          <span class="sb-item-icon"></span><span>Gift Rankings</span>
+          <span class="sb-item-icon"></span><span>Rankings</span>
         </button>
-        <button class="sb-item" onclick="switchView('leaderboard')">
-          <span class="sb-item-icon"></span><span>Leaderboard</span>
+        <button class="sb-item" onclick="switchView('search')">
+          <span class="sb-item-icon"></span><span>Search</span>
         </button>
       </div>
       <div class="sb-footer" onmouseenter="updateSbPopup()">
@@ -1643,9 +1669,12 @@
                 <p>Describe them and we'll tailor every pick.</p>
               </div>
             </div>
-            <input class="t-input" type="text" id="recipient" placeholder="e.g. my mom, best friend, coworker…" maxlength="120" />
+            <input class="t-input" type="text" id="recipient" placeholder="e.g. my mom, best friend, coworker…" maxlength="120" autocomplete="off" />
             <p class="err" id="err-rec">Please describe who you're shopping for.</p>
-            <button class="btn-p" onclick="goStep3()" style="margin-top:18px">Continue →</button>
+            <div class="setup-btn-row">
+              <button class="btn-back" onclick="goBack1()">← Back</button>
+              <button class="btn-p" onclick="goStep3()">Continue →</button>
+            </div>
           </div>
           <div class="setup-card hidden" id="step-3">
             <div class="card-hd">
@@ -1661,7 +1690,10 @@
               <div class="dollar"><input class="t-input" type="number" id="bmax" placeholder="100" min="1" max="50000" value="100" /></div>
             </div>
             <p class="err" id="err-budget">Enter a valid range (min &lt; max).</p>
-            <button class="btn-p" onclick="startFinding()" style="margin-top:18px">Find Gifts</button>
+            <div class="setup-btn-row">
+              <button class="btn-back" onclick="goBack2()">← Back</button>
+              <button class="btn-p" onclick="startFinding()">Find Gifts</button>
+            </div>
           </div>
         </div>
 
@@ -1679,11 +1711,6 @@
               <div class="c-state"><div class="spinner"></div></div>
             </div>
           </div>
-          <div class="actions">
-            <button class="act-btn btn-skip" id="btn-no" onclick="decline()">✕</button>
-            <button class="act-btn btn-save" id="btn-yes" onclick="accept()">♥</button>
-          </div>
-          <p class="hint"><kbd>←</kbd> Skip &nbsp; <kbd>→</kbd> Save</p>
           <div class="dating-bottom">
             <button class="bottom-btn" onclick="openPanel()">Saved (<span id="cnt-panel">0</span>)</button>
             <button class="bottom-btn" onclick="resetSession()">↩ New search</button>
@@ -1691,16 +1718,16 @@
         </div>
       </div>
 
-      <!-- ── VIEW: Gift Rankings ── -->
+      <!-- ── VIEW: Rankings (Mine / Friends / Global) ── -->
       <div class="app-view" id="view-rankings">
         <div class="view-body" id="rankings-body">
           <!-- populated by JS -->
         </div>
       </div>
 
-      <!-- ── VIEW: Leaderboard ── -->
-      <div class="app-view" id="view-leaderboard">
-        <div class="view-body" id="leaderboard-body">
+      <!-- ── VIEW: Search (Products / People) ── -->
+      <div class="app-view" id="view-search">
+        <div class="view-body" id="search-body">
           <!-- populated by JS -->
         </div>
       </div>
@@ -1722,105 +1749,121 @@
       <button class="bn-tab sb-item" onclick="switchView('rankings')">
         <span class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><span>Rankings</span>
       </button>
-      <button class="bn-tab sb-item" onclick="switchView('leaderboard')">
-        <span class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Leaderboard</span>
+      <button class="bn-tab sb-item" onclick="switchView('search')">
+        <span class="bn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span>Search</span>
       </button>
       <button class="bn-tab sb-item" onclick="switchView('myprofile')">
         <div class="bn-avatar" id="bn-avatar">?</div><span>Profile</span>
       </button>
     </nav>
 
-  </div><!-- #app -->
 
-  <!-- Backdrop -->
-  <div class="backdrop" id="backdrop" onclick="closeAll()"></div>
+    <!-- Backdrop -->
+    <div class="backdrop" id="backdrop" onclick="closeAll()"></div>
 
-  <!-- Filter panel -->
-  <div class="filter-panel" id="filter-panel">
-    <div class="panel-hd">
-      <h2 class="panel-title">Filters</h2>
-      <button class="panel-close" onclick="closeFilters()">✕</button>
-    </div>
-    <div class="filter-body">
-      <div class="f-group">
-        <label class="f-label" for="f-rec">Who are you shopping for?</label>
-        <input class="t-input" type="text" id="f-rec" maxlength="120" />
+    <!-- Filter panel -->
+    <div class="filter-panel" id="filter-panel">
+      <div class="panel-hd">
+        <h2 class="panel-title">Filters</h2>
+        <button class="panel-close" onclick="closeFilters()">✕</button>
       </div>
-      <div class="f-group">
-        <label class="f-label">Budget range</label>
-        <div class="budget-row">
-          <div class="dollar"><input class="t-input" type="number" id="f-bmin" min="1" max="50000" /></div>
-          <span class="budget-div">→</span>
-          <div class="dollar"><input class="t-input" type="number" id="f-bmax" min="1" max="50000" /></div>
+      <div class="filter-body">
+        <div class="f-group">
+          <label class="f-label" for="f-rec">Who are you shopping for?</label>
+          <input class="t-input" type="text" id="f-rec" maxlength="120" />
         </div>
-        <p class="err" id="f-err">Enter a valid range (min &lt; max).</p>
+        <div class="f-group">
+          <label class="f-label">Budget range</label>
+          <div class="budget-row">
+            <div class="dollar"><input class="t-input" type="number" id="f-bmin" min="1" max="50000" /></div>
+            <span class="budget-div">→</span>
+            <div class="dollar"><input class="t-input" type="number" id="f-bmax" min="1" max="50000" /></div>
+          </div>
+          <p class="err" id="f-err">Enter a valid range (min &lt; max).</p>
+        </div>
+        <button class="btn-p" onclick="applyFilters()">Apply Filters</button>
       </div>
-      <button class="btn-p" onclick="applyFilters()">Apply Filters</button>
     </div>
-  </div>
 
-  <!-- Saved gifts panel -->
-  <div class="panel" id="panel">
-    <div class="panel-hd">
-      <h2 class="panel-title">Saved Gifts</h2>
-      <button class="panel-close" onclick="closePanel()">✕</button>
+    <!-- Saved gifts panel -->
+    <div class="panel" id="panel">
+      <div class="panel-hd">
+        <h2 class="panel-title">Saved Gifts</h2>
+        <button class="panel-close" onclick="closePanel()">✕</button>
+      </div>
+      <div class="saved-list" id="saved-list">
+        <div class="empty"><p>No saved gifts yet — swipe right!</p></div>
+      </div>
+      <div class="panel-footer">
+        <button class="panel-footer-btn btn-reset" onclick="resetSession()">↩ New search</button>
+      </div>
     </div>
-    <div class="saved-list" id="saved-list">
-      <div class="empty"><p>No saved gifts yet — swipe right!</p></div>
-    </div>
-    <div class="panel-footer">
-      <button class="panel-footer-btn btn-reset" onclick="resetSession()">↩ New search</button>
-    </div>
-  </div>
 
-  <!-- Add ranking modal -->
-  <div id="rank-modal-overlay" class="hidden">
+    <!-- Add ranking modal -->
+    <div id="rank-modal-overlay" class="hidden">
     <div class="rank-modal">
       <button class="rank-modal-close" onclick="closeRankModal()">✕</button>
       <h2>Rate a Gift</h2>
       <p>Add a gift you've received to your personal rankings.</p>
-      <div class="rm-field">
+      <div class="rm-field" style="position:relative">
         <label>Gift name</label>
-        <input class="t-input" type="text" id="rm-name" placeholder="e.g. Sony WH-1000XM5 Headphones" />
+        <input class="t-input" type="text" id="rm-name" placeholder="e.g. Sony WH-1000XM5 Headphones" autocomplete="off" oninput="rmNameInput(this.value)" onblur="setTimeout(closeRmSuggest,150)" />
+        <div id="rm-suggest" class="rm-suggest hidden"></div>
       </div>
       <div class="rm-field">
         <label>Who gave it</label>
         <input class="t-input" type="text" id="rm-from" placeholder="e.g. Mom, partner, coworker…" />
       </div>
       <div class="rm-field">
-        <label>Occasion</label>
-        <select class="rm-select" id="rm-occasion">
-          <option value="Birthday">Birthday</option>
-          <option value="Holiday">Holiday</option>
-          <option value="Anniversary">Anniversary</option>
-          <option value="Graduation">Graduation</option>
-          <option value="Wedding">Wedding</option>
-          <option value="Just Because">Just Because</option>
-          <option value="Other">Other</option>
-        </select>
+        <label>Tags</label>
+        <div class="rm-tag-group">
+          <div class="rm-tag-group-label">Occasion</div>
+          <div class="rm-tag-chips">
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Birthday')">Birthday</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Holiday')">Holiday</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Anniversary')">Anniversary</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Graduation')">Graduation</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Wedding')">Wedding</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Valentine\'s')">Valentine's</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Just Because')">Just Because</button>
+          </div>
+        </div>
+        <div class="rm-tag-group">
+          <div class="rm-tag-group-label">Category</div>
+          <div class="rm-tag-chips">
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Tech')">Tech</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Fashion')">Fashion</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Home')">Home</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Outdoors')">Outdoors</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Food & Drink')">Food & Drink</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Wellness')">Wellness</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Experience')">Experience</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Jewelry')">Jewelry</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Books')">Books</button>
+            <button class="rm-tag-chip" onclick="toggleRmTag(this,'Travel')">Travel</button>
+          </div>
+        </div>
       </div>
       <div class="rm-ratings">
         <div class="rm-rating-row">
-          <span class="rm-rating-label">Most Memorable</span>
+          <span class="rm-rating-label">Thoughtfulness</span>
+          <div class="star-row" id="stars-thoughtfulness" data-dim="thoughtfulness" data-val="0"></div>
+        </div>
+        <div class="rm-rating-row">
+          <span class="rm-rating-label">Memorableness</span>
           <div class="star-row" id="stars-memorable" data-dim="memorable" data-val="0"></div>
         </div>
         <div class="rm-rating-row">
-          <span class="rm-rating-label">Most Useful</span>
+          <span class="rm-rating-label">Usefulness</span>
           <div class="star-row" id="stars-useful" data-dim="useful" data-val="0"></div>
-        </div>
-        <div class="rm-rating-row">
-          <span class="rm-rating-label">Best Value</span>
-          <div class="star-row" id="stars-value" data-dim="value" data-val="0"></div>
-        </div>
-        <div class="rm-rating-row">
-          <span class="rm-rating-label">Overall</span>
-          <div class="star-row" id="stars-overall" data-dim="overall" data-val="0"></div>
         </div>
       </div>
       <div class="auth-msg" id="rm-err"></div>
       <button class="btn-p" onclick="saveRanking()">Add to Rankings</button>
     </div>
   </div>
+
+  </div><!-- #app -->
 
   <script>
     const $ = id => document.getElementById(id);
@@ -1866,7 +1909,7 @@
 
     sb.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && landingPassed) { hideAuthModal(); showApp(); if (!dbLoaded) { dbLoaded = true; loadSavedFromDb(); } }
-      if (event === 'SIGNED_OUT') { landingPassed = false; showAuth(); resetAll(); dbLoaded = false; }
+      if (event === 'SIGNED_OUT') { dbLoaded = false; resetAll(); landingPassed = true; $('app').classList.add('hidden'); hideAuthModal(); hideUsernameSetup(); showAuthModal(); }
     });
 
     function showAuthModal() {
@@ -1891,26 +1934,121 @@
       }
     }
     async function showApp() {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
       stopSphere();
       $('landing').classList.add('hidden');
       hideAuthModal();
+
+      // New accounts (and any pre-existing account without one) must pick a username before entering the app.
+      const hasUsername = await ensureUsername(user);
+      if (!hasUsername) return; // username-modal-overlay is now up; submitUsernameSetup() re-calls showApp()
+
       $('app').classList.remove('hidden');
-      const { data: { user } } = await sb.auth.getUser();
-      if (user) {
-        const label = user.email || user.user_metadata?.full_name || 'Signed in';
-        $('sb-email').textContent = label;
-        const p = loadMyProfile();
-        const initial = p.name ? p.name[0].toUpperCase() : label[0].toUpperCase();
-        if (p.photo) {
-          $('sb-avatar').innerHTML = `<img src="${p.photo}" alt="">`;
-          $('sb-avatar').style.background = 'none';
-          $('bn-avatar').innerHTML = `<img src="${p.photo}" alt="">`;
-          $('bn-avatar').style.background = 'none';
-        } else {
-          $('sb-avatar').textContent = initial;
-          $('bn-avatar').textContent = initial;
-        }
+      const label = user.email || user.user_metadata?.full_name || 'Signed in';
+      $('sb-email').textContent = label;
+      const p = loadMyProfile();
+      const initial = p.name ? p.name[0].toUpperCase() : label[0].toUpperCase();
+      if (p.photo) {
+        $('sb-avatar').innerHTML = `<img src="${p.photo}" alt="">`;
+        $('sb-avatar').style.background = 'none';
+        $('bn-avatar').innerHTML = `<img src="${p.photo}" alt="">`;
+        $('bn-avatar').style.background = 'none';
+      } else {
+        $('sb-avatar').textContent = initial;
+        $('bn-avatar').textContent = initial;
       }
+    }
+
+    /* ── MANDATORY USERNAME SETUP ── */
+    const RESERVED_USERNAMES = new Set([
+      'admin','administrator','support','help','system','moderator','mod','official',
+      'api','root','me','settings','notifications','null','undefined','persent',
+      'security','staff','team','info','contact','billing','abuse','everyone','here',
+    ]);
+
+    // Small, deliberately conservative blocklist — catches the obvious cases, not exhaustive.
+    const BLOCKED_USERNAME_WORDS = [
+      'fuck','shit','bitch','cunt','nigger','nigga','faggot','fag','retard','whore','slut','rape','nazi','porn',
+    ];
+
+    function validateUsername(raw) {
+      const norm = (raw || '').trim().toLowerCase();
+      if (!norm) return { ok: false, error: 'Please enter a username.' };
+      if (norm.length < 3)  return { ok: false, error: 'Username must be at least 3 characters.' };
+      if (norm.length > 20) return { ok: false, error: 'Username must be 20 characters or fewer.' };
+      if (!/^[a-z0-9._-]+$/.test(norm)) return { ok: false, error: 'Only letters, numbers, periods, underscores, and hyphens are allowed.' };
+      if (/^[._-]/.test(norm) || /[._-]$/.test(norm)) return { ok: false, error: "Can't start or end with a period, underscore, or hyphen." };
+      if (/[._-]{2,}/.test(norm)) return { ok: false, error: "Can't have consecutive periods, underscores, or hyphens." };
+      if (RESERVED_USERNAMES.has(norm)) return { ok: false, error: 'That username is reserved.' };
+      if (BLOCKED_USERNAME_WORDS.some(w => norm.includes(w))) return { ok: false, error: "That username isn't allowed." };
+      if (/^www\./.test(norm) || /\.(com|net|org|gg|io|co|xyz|info|biz|me|tv|ru|cn|app|dev)$/.test(norm)) {
+        return { ok: false, error: "Usernames can't look like a web address." };
+      }
+      return { ok: true, normalized: norm };
+    }
+
+    let usernameSetupUserId = null;
+
+    // Returns true if the user already has a username on file; otherwise shows the mandatory setup modal and returns false.
+    async function ensureUsername(user) {
+      const { data } = await sb.from('user_profiles').select('username').eq('user_id', user.id).maybeSingle();
+      if (data && data.username) return true;
+      usernameSetupUserId = user.id;
+      $('username-setup-input').value = '';
+      hideUsernameSetupMsg();
+      const ov = $('username-modal-overlay');
+      ov.classList.remove('hidden');
+      requestAnimationFrame(() => ov.classList.add('visible'));
+      setTimeout(() => $('username-setup-input').focus(), 100);
+      return false;
+    }
+
+    function hideUsernameSetup() {
+      const ov = $('username-modal-overlay');
+      ov.classList.remove('visible');
+      setTimeout(() => ov.classList.add('hidden'), 240);
+    }
+
+    function showUsernameSetupMsg(msg) {
+      const el = $('username-setup-msg');
+      el.textContent = msg; el.className = 'auth-msg error'; el.style.display = 'block';
+    }
+    function hideUsernameSetupMsg() { $('username-setup-msg').style.display = 'none'; }
+
+    async function submitUsernameSetup() {
+      const v = validateUsername($('username-setup-input').value);
+      if (!v.ok) { showUsernameSetupMsg(v.error); return; }
+
+      const btn = $('username-setup-submit');
+      btn.disabled = true; btn.textContent = 'Checking…';
+
+      const { data: existing } = await sb.from('user_profiles').select('user_id').eq('username', v.normalized).maybeSingle();
+      if (existing && existing.user_id !== usernameSetupUserId) {
+        btn.disabled = false; btn.textContent = 'Continue';
+        showUsernameSetupMsg('That username is taken.');
+        return;
+      }
+
+      const p = loadMyProfile();
+      p.username = v.normalized;
+      saveMyProfileLocal(p);
+      const { error } = await sb.from('user_profiles').upsert({
+        user_id: usernameSetupUserId,
+        username: v.normalized,
+        display_name: p.name || '',
+        profile_data: p,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+
+      btn.disabled = false; btn.textContent = 'Continue';
+      if (error) {
+        showUsernameSetupMsg(error.code === '23505' ? 'That username is taken.' : 'Something went wrong — try again.');
+        return;
+      }
+      hideUsernameSetup();
+      syncNavAvatar(p);
+      showApp();
     }
 
     /* ── SPHERE / LANDING (Three.js — see module script below) ── */
@@ -2065,6 +2203,18 @@
       $('step-2').classList.add('hidden'); $('step-3').classList.remove('hidden'); setDots(3);
     }
 
+    function goBack1() {
+      $('recipient').value = '';
+      $('err-rec').style.display = 'none';
+      $('step-2').classList.add('hidden'); $('step-1').classList.remove('hidden'); setDots(1);
+    }
+
+    function goBack2() {
+      $('recipient').value = '';
+      $('err-rec').style.display = 'none';
+      $('step-3').classList.add('hidden'); $('step-2').classList.remove('hidden'); setDots(2);
+    }
+
     $('recipient').addEventListener('keydown', e => { if (e.key === 'Enter') goStep3(); });
 
     function startFinding() {
@@ -2199,7 +2349,7 @@
       $('cnt-panel').textContent = S.saved.length;
     }
 
-    function setButtons(on) { $('btn-yes').disabled = !on; $('btn-no').disabled = !on; }
+    function setButtons(on) { /* buttons removed — swipe only */ }
 
     /* ── PANELS ── */
     function openPanel()   { $('panel').classList.add('open'); $('backdrop').classList.add('on'); renderList(); }
@@ -2288,33 +2438,260 @@
       document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
       $('view-' + name).classList.add('active');
       document.querySelectorAll(`.sb-item[onclick="switchView('${name}')"]`).forEach(b => b.classList.add('active'));
-      if (name === 'rankings')    renderRankings();
-      if (name === 'leaderboard') renderLeaderboard();
-      if (name === 'myprofile')   renderMyProfileView();
+      if (name === 'rankings')  renderRankingsView();
+      if (name === 'search')    renderSearchView();
+      if (name === 'myprofile') renderMyProfileView();
     }
 
     /* ── GIFT RANKINGS ── */
     const RANK_KEY = 'gf_rankings_v1';
-    let rmRatings = { memorable: 0, useful: 0, value: 0, overall: 0 };
-    let rankSortDim = 'overall';
+    let rmRatings = { thoughtfulness: 0, memorable: 0, useful: 0 };
+    let rmTags = new Set();
 
     function loadRankings() {
       try { return JSON.parse(localStorage.getItem(RANK_KEY)) || []; } catch { return []; }
     }
     function saveRankingsLocal(data) { localStorage.setItem(RANK_KEY, JSON.stringify(data)); }
 
-    function openRankModal() {
-      rmRatings = { memorable: 0, useful: 0, value: 0, overall: 0 };
-      $('rm-name').value = ''; $('rm-from').value = ''; $('rm-occasion').value = 'Birthday';
-      ['memorable','useful','value','overall'].forEach(dim => renderStars(dim, 0));
+    function toggleRmTag(el, tag) {
+      if (rmTags.has(tag)) { rmTags.delete(tag); el.classList.remove('active'); }
+      else { rmTags.add(tag); el.classList.add('active'); }
+    }
+
+    const PRODUCT_CATALOG = [
+      // ── Apple ──
+      'AirPods 4','AirPods Pro 2','AirPods Pro 3','AirPods Max 2',
+      'iPhone 16','iPhone 16 Plus','iPhone 16 Pro','iPhone 16 Pro Max',
+      'iPhone 17','iPhone 17 Plus','iPhone 17 Pro','iPhone 17 Pro Max',
+      'iPad Air M3','iPad Pro M4 11"','iPad Pro M4 13"','iPad Mini 7',
+      'Apple Watch Series 10','Apple Watch Ultra 2','Apple Watch Ultra 3',
+      'MacBook Air 13" M3','MacBook Air 15" M3','MacBook Air 13" M4','MacBook Air 15" M4',
+      'MacBook Pro 14" M4','MacBook Pro 16" M4','MacBook Pro 14" M4 Pro','MacBook Pro 16" M4 Pro',
+      'Mac Mini M4','Mac Studio M4 Max','iMac M4','Apple TV 4K 3rd Gen',
+      'HomePod 2','HomePod Mini','Apple Vision Pro',
+      // ── Samsung ──
+      'Samsung Galaxy S25','Samsung Galaxy S25+','Samsung Galaxy S25 Ultra',
+      'Samsung Galaxy Z Fold 7','Samsung Galaxy Z Flip 7',
+      'Samsung Galaxy Watch 7','Samsung Galaxy Watch Ultra',
+      'Samsung Galaxy Buds 3 Pro','Samsung Galaxy Tab S10 Ultra',
+      'Samsung 65" Neo QLED 4K QN90D','Samsung The Frame 55" TV',
+      // ── Sony ──
+      'Sony WH-1000XM5','Sony WF-1000XM5','Sony LinkBuds S',
+      'Sony PlayStation 5 Slim','Sony PlayStation 5 Pro',
+      'Sony Bravia 8 OLED 65"','Sony Bravia 7 QLED 65"',
+      'Sony ZV-E10 II Camera','Sony A7C II Camera',
+      // ── Google ──
+      'Google Pixel 9','Google Pixel 9 Pro','Google Pixel 9 Pro XL','Google Pixel 9 Pro Fold',
+      'Google Pixel Watch 3 41mm','Google Pixel Watch 3 45mm',
+      'Google Pixel Buds Pro 2','Google Nest Learning Thermostat 4th Gen',
+      'Google Nest Hub 2nd Gen',
+      // ── Other Audio ──
+      'Bose QuietComfort Ultra Headphones','Bose QuietComfort Earbuds II',
+      'Bose SoundLink Flex Speaker','Bose SoundLink Max Speaker',
+      'Beats Studio Pro','Beats Powerbeats Pro 2','Beats Fit Pro',
+      'Sonos Era 100','Sonos Era 300','Sonos Beam Gen 2','Sonos Arc Ultra',
+      'JBL Charge 5','JBL Xtreme 4','Marshall Emberton III',
+      'Sennheiser Momentum 4 Wireless','Jabra Evolve2 85',
+      // ── Amazon ──
+      'Amazon Echo Show 15 2nd Gen','Amazon Echo Dot 5th Gen',
+      'Amazon Kindle Paperwhite 12th Gen','Amazon Kindle Colorsoft','Amazon Kindle Scribe 2nd Gen',
+      // ── Gaming ──
+      'Nintendo Switch 2','Nintendo Switch OLED',
+      'Xbox Series X','Xbox Series S','Steam Deck OLED',
+      'Meta Quest 3','Meta Quest 3S',
+      'DualSense Edge Controller','Xbox Elite Controller Series 2',
+      'Pokemon Legends: Z-A','The Legend of Zelda: Echoes of Wisdom',
+      'Mario Kart World','Metroid Prime 4','Donkey Kong Bananza',
+      'Grand Theft Auto VI','Call of Duty: Black Ops 6',
+      'Elden Ring: Nightreign','Final Fantasy VII Rebirth',
+      'Balatro','Metaphor: ReFantazio','Astro Bot','Black Myth: Wukong',
+      'Dragon Age: The Veilguard','Warhammer 40,000: Space Marine 2',
+      'Civilization VII','Indiana Jones and the Great Circle',
+      // ── Drones & Cameras ──
+      'DJI Mini 4 Pro','DJI Avata 2','DJI Osmo Mobile 7',
+      'GoPro HERO 13 Black','GoPro HERO 12 Black',
+      'Fujifilm Instax Mini 12','Polaroid Now+ Gen 2',
+      'Canon EOS R50','Nikon Z50 II',
+      // ── Wearables & Fitness Tech ──
+      'Garmin Fenix 8 Solar','Garmin Venu 3','Garmin Forerunner 965',
+      'Fitbit Charge 6','Whoop 4.0','Oura Ring Gen 4',
+      'Theragun Pro 5th Gen','Theragun Mini 2','Hypervolt 2 Pro',
+      // ── Smart Home ──
+      'Dyson V15 Detect Vacuum','Dyson Gen5detect Vacuum',
+      'iRobot Roomba Combo j9+','Ecovacs Deebot X2 Omni',
+      'Ring Video Doorbell Pro 2','Arlo Pro 5 Security Camera',
+      'Philips Hue Starter Kit','LIFX Color A19 Bulb Set',
+      // ── Kitchen ──
+      'KitchenAid Artisan 5qt Stand Mixer','KitchenAid Professional 600 Stand Mixer',
+      'Vitamix 5200 Blender','Ninja Creami Ice Cream Maker',
+      'Breville Barista Express Espresso Machine','De\'Longhi Magnifica Evo',
+      'Nespresso Vertuo Next','Nespresso Vertuo Pop',
+      'Ninja Foodi 9-in-1 Pressure Cooker','Instant Pot Duo 7-in-1 6qt',
+      'Cuisinart 6qt Air Fryer Toaster Oven','Ninja DualBrew Coffee Maker',
+      'Staub 5.5qt Round Cocotte','Le Creuset 5.5qt Dutch Oven',
+      'Lodge 12" Cast Iron Skillet','GreenPan Valencia Pro Cookware Set',
+      'OXO SoftWorks Kitchen Set','Zwilling Pro Knife Set',
+      'Wüsthof Classic 8" Chef\'s Knife','Global G-2 Chef Knife',
+      'Microplane Premium Zester','Breville Smart Oven Air Fryer Pro',
+      // ── Dyson Hair ──
+      'Dyson Airwrap Multi-Styler Complete Long','Dyson Supersonic Hair Dryer',
+      'Dyson Corrale Straightener','Shark FlexStyle',
+      // ── Beauty & Skincare ──
+      'La Mer Crème de la Mer Moisturizer','SK-II Facial Treatment Essence',
+      'Tatcha The Dewy Skin Cream','Sunday Riley Good Genes Lactic Acid Treatment',
+      'Drunk Elephant Protini Polypeptide Moisturizer','Charlotte Tilbury Magic Cream',
+      'LANEIGE Lip Sleeping Mask','Glow Recipe Watermelon Glow Niacinamide Dew Drops',
+      'Augustinus Bader The Rich Cream','The Ordinary Buffet Serum',
+      'NuFACE Trinity Facial Toning Device','Foreo Luna 4 Face Cleansing Brush',
+      'Clarisonic Replacement Brush Head Set','PMD Beauty Personal Microderm Pro',
+      'Charlotte Tilbury Pillow Talk Lip Liner & Lipstick Set',
+      'NARS Natural Radiant Longwear Foundation','Fenty Beauty Pro Filt\'r Foundation',
+      // ── Fashion & Accessories ──
+      'Ray-Ban Meta Smart Glasses','Ray-Ban Classic Wayfarer Sunglasses',
+      'Persol PO0649 Sunglasses','Oakley Holbrook Sunglasses',
+      'Canada Goose Expedition Parka','The North Face Nuptse 700 Jacket',
+      'Patagonia Better Sweater Fleece Jacket','Arc\'teryx Beta AR Jacket',
+      'Lululemon Align High-Rise Pant 25"','Lululemon Everywhere Belt Bag 1L',
+      'Lululemon Define Jacket','lululemon Scuba Hoodie',
+      'Nike Air Force 1 Low','Nike Air Jordan 1 Retro High OG',
+      'Adidas Samba OG','New Balance 990v6','Asics Gel-Kayano 31',
+      'On Cloud Cloudmonster 2','Hoka Clifton 9','Brooks Ghost 16',
+      'Converse Chuck Taylor All Star High Top',
+      'Tory Burch Miller Cloud Sandal',
+      'Stanley Quencher H2.0 FlowState 40oz','Hydro Flask 32oz Wide Mouth',
+      'Yeti Rambler 30oz Travel Mug','Ember Temperature Control Mug 2 14oz',
+      // ── Jewelry ──
+      'Tiffany & Co. Return to Tiffany Heart Tag Bracelet',
+      'Pandora Moments Snake Chain Bracelet',
+      'Pandora ME Link Chain Bracelet',
+      'Mejuri Bold Hoop Earrings Gold Vermeil',
+      'David Yurman Cable Classic Bracelet',
+      'Kendra Scott Elisa Pendant Necklace',
+      'Monica Vinader Siren Muse Diamond Ring',
+      'Ana Luisa Gold Paperclip Chain Necklace',
+      'Missoma Lucy Layered Necklace Set',
+      'Jenny Bird Auratic Gold Cuff',
+      // ── Books ──
+      'Atomic Habits by James Clear',
+      'Fourth Wing by Rebecca Yarros',
+      'Iron Flame by Rebecca Yarros',
+      'Onyx Storm by Rebecca Yarros',
+      'A Court of Thorns and Roses by Sarah J. Maas',
+      'The Women by Kristin Hannah',
+      'Tomorrow, and Tomorrow, and Tomorrow by Gabrielle Zevin',
+      'Intermezzo by Sally Rooney',
+      'James by Percival Everett',
+      'All Fours by Miranda July',
+      'Sapiens by Yuval Noah Harari',
+      'The Body Keeps the Score by Bessel van der Kolk',
+      'Greenlights by Matthew McConaughey',
+      'Can\'t Hurt Me by David Goggins',
+      'The 48 Laws of Power by Robert Greene',
+      'The Psychology of Money by Morgan Housel',
+      'Shoe Dog by Phil Knight',
+      'Bad Blood by John Carreyrou',
+      'The Thursday Murder Club by Richard Osman',
+      'Funny Story by Emily Henry',
+      // ── Food & Drink ──
+      'Harry & David Royal Riviera Pear Gift Box',
+      'Goldbelly Gift Card',
+      'Sugarfina 3-Piece Bento Box',
+      'Jeni\'s Splendid Ice Creams 6-Pint Collection',
+      'Mouth.com Foodie Gift Box',
+      'Omaha Steaks Classic Gift Package',
+      'Winc Wine Subscription (3 Months)',
+      'Drizly Gift Card',
+      'Murray\'s Cheese Assortment Box',
+      'La Boîte Spice Collection',
+      'OLIPOP Soda Variety Pack',
+      'Magic Spoon Cereal Variety Pack',
+      'Levain Bakery Chocolate Chip Cookie Gift Box',
+      'Georgetown Cupcake Gift Box',
+      // ── Home & Bedding ──
+      'Brooklinen Luxe Core Sheet Set Queen',
+      'Parachute Classic Percale Sheet Set Queen',
+      'Coyuchi Organic Sateen Sheet Set',
+      'Gravity Blanket 15lb',
+      'Bearaby Cotton Napper 15lb Weighted Blanket',
+      'Casper Original Pillow','Purple Harmony Pillow',
+      'Snowe Bath Towel Set','Parachute Classic Waffle Towel Set',
+      'Nest Fragrances Reed Diffuser','Diptyque Baies Candle','Boy Smells KUSH Candle',
+      'Voluspa Japonica Reed Diffuser',
+      // ── Travel & Luggage ──
+      'Away The Carry-On Aluminum','Away The Carry-On in Polycarbonate',
+      'Tumi Alpha 3 International Carry-On',
+      'Samsonite Omni PC Hardside 20" Carry-On',
+      'BÉIS The Carry-On Roller','Calpak Hue Carry-On Luggage',
+      'Osprey Farpoint 40 Travel Backpack',
+      'Cotopaxi Allpa 35L Travel Pack',
+      'Airbnb Gift Card','Viator Experience Gift Card',
+      // ── Outdoors ──
+      'Weber Spirit II E-310 Gas Grill',
+      'Traeger Pro 575 Wood Pellet Grill',
+      'Yeti Tundra 45 Cooler','Yeti Hopper M30 Soft Cooler',
+      'Rtic 65 Hard Cooler','Coleman 54qt Steel Belted Cooler',
+      'REI Co-op Trail 25 Pack',
+      'Jackery Explorer 1000 Power Station',
+      'BioLite CampStove 2+','MSR PocketRocket 2 Stove Kit',
+      'Kelty Cosmic 20 Sleeping Bag','Therm-a-Rest NeoAir XTherm Sleeping Pad',
+      'Black Diamond Storm 500 Headlamp',
+      'Hydro Flask 64oz Wide Mouth Water Bottle',
+    ];
+
+    let _rmSuggestPool = [];
+
+    async function openRankModal(prefillName) {
+      rmRatings = { thoughtfulness: 0, memorable: 0, useful: 0 };
+      rmTags = new Set();
+      $('rm-name').value = prefillName || ''; $('rm-from').value = '';
+      closeRmSuggest();
+      document.querySelectorAll('.rm-tag-chip').forEach(c => c.classList.remove('active'));
+      ['thoughtfulness','memorable','useful'].forEach(dim => renderStars(dim, 0));
       const ov = $('rank-modal-overlay');
       ov.classList.remove('hidden');
       requestAnimationFrame(() => ov.classList.add('visible'));
+      // load existing names for autocomplete (leaderboard items first, then catalog)
+      fetchLeaderboardData().then(pool => {
+        const rated = pool.map(p => p.name);
+        const ratedNorms = new Set(rated.map(normalizeGiftName));
+        const catalog = PRODUCT_CATALOG.filter(n => !ratedNorms.has(normalizeGiftName(n)));
+        _rmSuggestPool = [...rated, ...catalog];
+      });
     }
+
     function closeRankModal() {
       const ov = $('rank-modal-overlay');
       ov.classList.remove('visible');
+      closeRmSuggest();
       setTimeout(() => ov.classList.add('hidden'), 220);
+    }
+
+    let _rmSuggestMatches = [];
+
+    function rmNameInput(val) {
+      const box = $('rm-suggest');
+      if (!val.trim() || val.length < 2) { closeRmSuggest(); return; }
+      const q = val.toLowerCase();
+      const matches = _rmSuggestPool.filter(n => n.toLowerCase().includes(q)).slice(0, 6);
+      _rmSuggestMatches = matches;
+      if (!matches.length) { closeRmSuggest(); return; }
+      box.innerHTML = matches.map((n, i) => {
+        const idx = n.toLowerCase().indexOf(q);
+        const hi = esc(n.slice(0, idx)) + '<em>' + esc(n.slice(idx, idx + val.length)) + '</em>' + esc(n.slice(idx + val.length));
+        return `<div class="rm-suggest-item" onmousedown="pickRmSuggest(${i})">${hi}</div>`;
+      }).join('');
+      box.classList.remove('hidden');
+    }
+
+    function pickRmSuggest(i) {
+      const name = _rmSuggestMatches[i];
+      if (name != null) $('rm-name').value = name;
+      closeRmSuggest();
+    }
+
+    function closeRmSuggest() {
+      const box = $('rm-suggest');
+      if (box) box.classList.add('hidden');
     }
 
     function renderStars(dim, val) {
@@ -2333,16 +2710,14 @@
       const name = $('rm-name').value.trim();
       const from = $('rm-from').value.trim();
       if (!name) { showRmErr('Please enter a gift name.'); return; }
+      const overall = Math.round((rmRatings.thoughtfulness + rmRatings.memorable + rmRatings.useful) / 3 * 10) / 10;
+      const entry = { id: Date.now(), name, from, tags: [...rmTags], ratings: { ...rmRatings, overall } };
       const data = loadRankings();
-      data.unshift({
-        id: Date.now(),
-        name, from,
-        occasion: $('rm-occasion').value,
-        ratings: { ...rmRatings },
-      });
+      data.unshift(entry);
       saveRankingsLocal(data);
+      saveRankingToSupabase(entry);
       closeRankModal();
-      renderRankings();
+      renderRankingsView();
     }
 
     function showRmErr(msg) {
@@ -2353,36 +2728,160 @@
     function deleteRanking(id) {
       const data = loadRankings().filter(r => r.id !== id);
       saveRankingsLocal(data);
-      renderRankings();
+      renderRankingsView();
     }
 
-    function renderRankings() {
+    $('rank-modal-overlay').addEventListener('click', e => {
+      if (e.target === $('rank-modal-overlay')) closeRankModal();
+    });
+
+    /* ── RANKINGS VIEW (Mine / Friends / Global) ── */
+    let rankingsSubView = 'mine';
+    let rankActiveTag = 'All';
+
+    const _wordToNum = { one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',ten:'10',
+      first:'1',second:'2',third:'3',fourth:'4',fifth:'5',sixth:'6',seventh:'7',eighth:'8',ninth:'9',tenth:'10' };
+
+    function normalizeGiftName(name) {
+      return name.toLowerCase().trim()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .split(' ').map(w => _wordToNum[w] || w).join(' ').trim();
+    }
+
+    function levenshtein(a, b) {
+      if (a === b) return 0;
+      const m = a.length, n = b.length;
+      if (!m) return n; if (!n) return m;
+      const dp = Array.from({length: m + 1}, (_, i) => [i]);
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+      for (let i = 1; i <= m; i++)
+        for (let j = 1; j <= n; j++)
+          dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+      return dp[m][n];
+    }
+
+    function findMapKey(map, norm) {
+      if (map.has(norm)) return norm;
+      for (const key of map.keys()) {
+        const maxLen = Math.max(key.length, norm.length);
+        if (maxLen > 3 && levenshtein(key, norm) <= Math.max(1, Math.floor(maxLen * 0.1))) return key;
+      }
+      return null;
+    }
+
+    function addToMap(map, displayName, tags, overall) {
+      const norm = normalizeGiftName(displayName);
+      const key = findMapKey(map, norm) ?? norm;
+      if (!map.has(key)) map.set(key, { name: displayName, tags: new Set(tags), total: 0, count: 0 });
+      const e = map.get(key);
+      e.total += overall;
+      e.count += 1;
+      tags.forEach(t => e.tags.add(t));
+    }
+
+    // Global: your local ratings + everyone's community_ratings.
+    async function fetchLeaderboardData() {
+      const map = new Map();
+      const localSynced = new Set();
+
+      loadRankings().forEach(r => {
+        if (!r.ratings?.overall) return;
+        addToMap(map, r.name, r.tags || [], r.ratings.overall);
+        if (r.sbId) localSynced.add(r.sbId);
+      });
+
+      const { data } = await sb.from('community_ratings').select('id, gift_name, tags, overall');
+      if (data) {
+        data.forEach(row => {
+          if (localSynced.has(row.id)) return;
+          addToMap(map, row.gift_name, row.tags || [], row.overall || 0);
+        });
+      }
+
+      if (!map.size) return [];
+      return Array.from(map.values()).map(e => ({
+        name: e.name,
+        tags: [...e.tags],
+        score: Math.round(e.total / e.count * 10) / 10,
+        count: e.count,
+      }));
+    }
+
+    // Friends: community_ratings from people you follow only.
+    async function fetchFriendsRankingData() {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return [];
+      const { data: followRows } = await sb.from('follows').select('followee_id').eq('follower_id', user.id);
+      const ids = (followRows || []).map(r => r.followee_id);
+      if (!ids.length) return [];
+      const { data } = await sb.from('community_ratings').select('gift_name, tags, overall').in('user_id', ids);
+      if (!data || !data.length) return [];
+      const map = new Map();
+      data.forEach(row => addToMap(map, row.gift_name, row.tags || [], row.overall || 0));
+      return Array.from(map.values()).map(e => ({
+        name: e.name,
+        tags: [...e.tags],
+        score: Math.round(e.total / e.count * 10) / 10,
+        count: e.count,
+      }));
+    }
+
+    async function saveRankingToSupabase(entry) {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const { data } = await sb.from('community_ratings').insert({
+        user_id: user.id,
+        gift_name: entry.name,
+        tags: entry.tags,
+        overall: entry.ratings.overall,
+      }).select('id').single();
+      if (data?.id) {
+        const rankings = loadRankings();
+        const local = rankings.find(r => r.id === entry.id);
+        if (local) { local.sbId = data.id; saveRankingsLocal(rankings); }
+      }
+    }
+
+    function renderRankingsView() {
       const body = $('rankings-body');
-      const data = loadRankings();
-      const dims = ['memorable','useful','value','overall'];
-      const dimLabels = { memorable:'Memorable', useful:'Useful', value:'Value', overall:'Overall' };
-
-      const sorted = [...data].sort((a,b) =>
-        (b.ratings[rankSortDim]||0) - (a.ratings[rankSortDim]||0));
-
-      const toolbar = `<div class="rankings-toolbar">
-        <div class="sort-tabs">
-          ${dims.map(d => `<button class="sort-tab${d===rankSortDim?' active':''}" onclick="setRankSort('${d}')">${dimLabels[d]}</button>`).join('')}
+      body.innerHTML = `
+        <div class="profiles-tabs">
+          <button class="profiles-tab${rankingsSubView==='mine'?' active':''}" onclick="setRankingsSubView('mine')">Mine</button>
+          <button class="profiles-tab${rankingsSubView==='friends'?' active':''}" onclick="setRankingsSubView('friends')">Friends</button>
+          <button class="profiles-tab${rankingsSubView==='global'?' active':''}" onclick="setRankingsSubView('global')">Global</button>
         </div>
-        <button class="add-gift-btn" onclick="openRankModal()">+ Add Gift</button>
-      </div>`;
+        <div class="rankings-toolbar">
+          <button class="add-gift-btn" onclick="openRankModal()">+ Add Gift</button>
+        </div>
+        <div id="rankings-content"></div>`;
+      if (rankingsSubView === 'mine') renderMyRankingsContent();
+      else renderAggregateRankingsContent(rankingsSubView);
+    }
+
+    function setRankingsSubView(v) { rankingsSubView = v; rankActiveTag = 'All'; renderRankingsView(); }
+    function setRankTag(tag) { rankActiveTag = tag; renderAggregateRankingsContent(rankingsSubView); }
+
+    function renderMyRankingsContent() {
+      const container = $('rankings-content');
+      const data = loadRankings();
+      const dims = ['thoughtfulness','memorable','useful'];
+      const dimLabels = { thoughtfulness:'Thoughtfulness', memorable:'Memorableness', useful:'Usefulness' };
+
+      const sorted = [...data].sort((a,b) => (b.ratings.overall||0) - (a.ratings.overall||0));
 
       if (!sorted.length) {
-        body.innerHTML = toolbar + `<div class="rankings-empty">
+        container.innerHTML = `<div class="rankings-empty">
           <div class="rankings-empty-icon"></div>
           <h3>Your hall of fame awaits</h3>
-          <p>Add gifts you've received and rate them — memorable, useful, best value, and overall.</p>
+          <p>Add gifts you've received and rate them on thoughtfulness, memorableness, and usefulness.</p>
           <button class="add-gift-btn" onclick="openRankModal()" style="margin-top:8px">+ Add your first gift</button>
         </div>`;
         return;
       }
 
       const cards = sorted.map((r, i) => {
+        const overall = r.ratings.overall != null ? r.ratings.overall.toFixed(1) : '—';
         const bars = dims.map(d => {
           const v = r.ratings[d] || 0;
           return `<div class="rank-bar-row">
@@ -2391,11 +2890,15 @@
             <span class="rank-bar-val">${v || '—'}</span>
           </div>`;
         }).join('');
+        const tagList = r.tags && r.tags.length ? r.tags : (r.occasion ? [r.occasion] : []);
+        const tagPills = tagList.map(t => `<span class="rank-tag-pill">${esc(t)}</span>`).join('');
         return `<div class="rank-card">
           <div class="rank-num${i<3?' top':''}">#${i+1}</div>
           <div class="rank-info">
             <div class="rank-name">${esc(r.name)}</div>
-            <div class="rank-meta">${r.from?`From ${esc(r.from)} · `:''}${esc(r.occasion)}</div>
+            ${r.from ? `<div class="rank-meta">From ${esc(r.from)}</div>` : ''}
+            ${tagPills ? `<div class="rank-tags">${tagPills}</div>` : ''}
+            <div class="rank-overall-row"><span class="rank-overall-label">Overall</span><span class="rank-overall-val">${overall} / 5</span></div>
             <div class="rank-bars">${bars}</div>
           </div>
           <div class="rank-actions">
@@ -2404,96 +2907,138 @@
         </div>`;
       }).join('');
 
-      body.innerHTML = toolbar + `<div class="rankings-list">${cards}</div>`;
+      container.innerHTML = `<div class="rankings-list">${cards}</div>`;
     }
 
-    function setRankSort(dim) { rankSortDim = dim; renderRankings(); }
+    async function renderAggregateRankingsContent(kind) {
+      const container = $('rankings-content');
+      container.innerHTML = `<div class="rankings-empty"><p style="font-size:14px;color:var(--muted)">Loading…</p></div>`;
 
-    $('rank-modal-overlay').addEventListener('click', e => {
-      if (e.target === $('rank-modal-overlay')) closeRankModal();
-    });
+      const pool = kind === 'friends' ? await fetchFriendsRankingData() : await fetchLeaderboardData();
+      const allTags = new Set();
+      pool.forEach(item => item.tags.forEach(t => allTags.add(t)));
+      const tagOrder = ['All','Birthday','Holiday','Anniversary','Graduation','Wedding',"Valentine's",'Just Because',
+        'Tech','Home','Fashion','Outdoors','Food & Drink','Wellness','Experience','Jewelry','Books','Travel'];
+      const tagList = tagOrder.filter(t => t === 'All' || allTags.has(t));
 
-    /* ── LEADERBOARD ── */
-    const LB_DATA = {
-      dad:        { label:'For Dad',      emoji:'👨', items:[
-        { name:'Sony WH-1000XM5 Headphones',   emoji:'🎧', votes:2847, rating:4.8, price:'$200–$350', tag:'Electronics' },
-        { name:'Weber Portable Grill',          emoji:'🍖', votes:1923, rating:4.7, price:'$80–$120',  tag:'Outdoors' },
-        { name:'Personalized Leather Wallet',   emoji:'👛', votes:1756, rating:4.6, price:'$40–$80',   tag:'Accessories' },
-        { name:'Craft Beer Subscription Box',   emoji:'🍺', votes:1543, rating:4.5, price:'$30–$50/mo',tag:'Food & Drink' },
-        { name:'Electric Pressure Washer',      emoji:'🚿', votes:1201, rating:4.4, price:'$100–$200', tag:'Home' },
-      ]},
-      mom:        { label:'For Mom',      emoji:'👩', items:[
-        { name:'Air Fryer Oven',                emoji:'🍳', votes:3241, rating:4.9, price:'$80–$150',  tag:'Kitchen' },
-        { name:'Silk Pillowcase Set',           emoji:'🛏️', votes:2198, rating:4.8, price:'$30–$60',   tag:'Bedroom' },
-        { name:'Fresh Flower Subscription',     emoji:'💐', votes:1876, rating:4.7, price:'$35–$60/mo',tag:'Flowers' },
-        { name:'Kindle Paperwhite',             emoji:'📚', votes:1654, rating:4.7, price:'$120–$160', tag:'Tech' },
-        { name:'Jewelry Organizer Armoire',     emoji:'💍', votes:1320, rating:4.5, price:'$60–$100',  tag:'Accessories' },
-      ]},
-      under50:    { label:'Under $50',    emoji:'💵', items:[
-        { name:'Gourmet Hot Sauce Set',         emoji:'🌶️', votes:4512, rating:4.9, price:'$20–$40',   tag:'Food' },
-        { name:'Custom Star Map Print',         emoji:'⭐', votes:2654, rating:4.8, price:'$25–$45',   tag:'Art' },
-        { name:'Insulated Water Bottle',        emoji:'💧', votes:2341, rating:4.7, price:'$25–$40',   tag:'Sports' },
-        { name:'Cozy Candle Gift Set',          emoji:'🕯️', votes:2187, rating:4.6, price:'$20–$45',   tag:'Home' },
-        { name:'Cable Organizer Kit',           emoji:'🔌', votes:1897, rating:4.5, price:'$15–$25',   tag:'Tech' },
-      ]},
-      graduation: { label:'Graduation',   emoji:'🎓', items:[
-        { name:'MacBook Air M3',                emoji:'💻', votes:5123, rating:4.9, price:'$900–$1,200',tag:'Tech' },
-        { name:'Luggage Set',                   emoji:'🧳', votes:3456, rating:4.8, price:'$150–$300', tag:'Travel' },
-        { name:'Espresso Machine',              emoji:'☕', votes:2543, rating:4.7, price:'$80–$200',  tag:'Kitchen' },
-        { name:'AirPods Pro',                   emoji:'🎵', votes:2234, rating:4.6, price:'$200–$250', tag:'Electronics' },
-        { name:'Professional Leather Planner',  emoji:'📋', votes:1789, rating:4.5, price:'$30–$60',   tag:'Office' },
-      ]},
-      engineers:  { label:'For Engineers',emoji:'⚙️', items:[
-        { name:'Mechanical Keyboard',           emoji:'⌨️', votes:3876, rating:4.9, price:'$80–$200',  tag:'Tech' },
-        { name:'3D Printer',                    emoji:'🖨️', votes:2654, rating:4.8, price:'$200–$400', tag:'Maker' },
-        { name:'Raspberry Pi Starter Kit',      emoji:'🍓', votes:2198, rating:4.8, price:'$60–$100',  tag:'DIY' },
-        { name:'Ultra-wide Monitor',            emoji:'🖥️', votes:1987, rating:4.7, price:'$250–$500', tag:'Tech' },
-        { name:'Soldering Station Kit',         emoji:'🔧', votes:1654, rating:4.6, price:'$40–$80',   tag:'Tools' },
-      ]},
-      valentine:  { label:"Valentine's",  emoji:'❤️', items:[
-        { name:'Personalized Storybook',        emoji:'📖', votes:4321, rating:4.9, price:'$40–$80',   tag:'Personalized' },
-        { name:'Spa & Wellness Gift Set',       emoji:'🛁', votes:3567, rating:4.8, price:'$30–$80',   tag:'Wellness' },
-        { name:'Artisan Chocolate Box',         emoji:'🍫', votes:3012, rating:4.8, price:'$25–$60',   tag:'Food' },
-        { name:'Couples Cooking Class',         emoji:'👨‍🍳', votes:2543, rating:4.7, price:'$80–$150',  tag:'Experience' },
-        { name:'Diamond Pendant Necklace',      emoji:'💎', votes:2187, rating:4.7, price:'$100–$300', tag:'Jewelry' },
-      ]},
-    };
+      const filtered = rankActiveTag === 'All' ? pool : pool.filter(i => i.tags.includes(rankActiveTag));
+      const sorted = [...filtered].sort((a,b) => b.score - a.score || b.count - a.count);
 
-    let activeLbTab = 'dad';
-
-    function renderLeaderboard() {
-      const body = $('leaderboard-body');
-      const tabs = Object.entries(LB_DATA).map(([key, cat]) =>
-        `<button class="lb-tab${key===activeLbTab?' active':''}" onclick="setLbTab('${key}')">${cat.label}</button>`
-      ).join('');
-
-      const cat = LB_DATA[activeLbTab];
       const rankClasses = ['gold','silver','bronze'];
-      const items = cat.items.map((item, i) => `
-        <div class="lb-item">
+      const items = sorted.map((item, i) => {
+        const tagPills = item.tags.map(t => `<span class="lb-tag">${esc(t)}</span>`).join('');
+        const countStr = item.count >= 1000 ? (item.count/1000).toFixed(1)+'k' : item.count;
+        return `<div class="lb-item">
           <div class="lb-rank${i<3?' '+rankClasses[i]:''}">#${i+1}</div>
           <div class="lb-info">
             <div class="lb-name">${esc(item.name)}</div>
             <div class="lb-meta">
-              <span class="lb-rating">★ ${item.rating}</span>
-              <span class="lb-votes">${(item.votes/1000).toFixed(1)}k votes</span>
-              <span class="lb-tag">${item.tag}</span>
+              <span class="lb-rating">★ ${item.score.toFixed(1)}</span>
+              <span class="lb-votes">${countStr} ${item.count===1?'rating':'ratings'}</span>
+              ${tagPills}
             </div>
           </div>
-          <div class="lb-price">${esc(item.price)}</div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
 
-      body.innerHTML = `
-        <div class="lb-tabs">${tabs}</div>
-        <div class="lb-section-title">Top Gifts — ${cat.label}</div>
-        <div class="lb-list">${items}</div>`;
+      const filterBar = pool.length ? `<div class="lb-filter-bar">
+        ${tagList.map(t => `<button class="lb-filter-chip${t===rankActiveTag?' active':''}" onclick="setRankTag('${esc(t)}')">${esc(t)}</button>`).join('')}
+      </div>` : '';
+
+      const emptyMsg = kind === 'friends'
+        ? 'No ratings from friends yet — follow people in Search, or rate a gift yourself.'
+        : 'No ratings yet — be the first to add one!';
+
+      container.innerHTML = filterBar + (sorted.length
+        ? `<div class="lb-list">${items}</div>`
+        : `<div class="rankings-empty"><p style="font-size:14px;color:var(--muted)">${emptyMsg}</p></div>`);
     }
 
-    function setLbTab(key) { activeLbTab = key; renderLeaderboard(); }
+    /* ── SEARCH VIEW (Products / People) ── */
+    let searchMode = 'products';
+    let _searchProductPool = [];
+    let _searchProductResults = [];
+
+    function renderSearchView() {
+      const body = $('search-body');
+      body.innerHTML = `
+        <div class="profiles-tabs">
+          <button class="profiles-tab${searchMode==='products'?' active':''}" onclick="setSearchMode('products')">Products</button>
+          <button class="profiles-tab${searchMode==='people'?' active':''}" onclick="setSearchMode('people')">People</button>
+        </div>
+        <div id="search-content"></div>`;
+      if (searchMode === 'products') renderProductSearch();
+      else renderPeopleSearch();
+    }
+
+    function setSearchMode(m) { searchMode = m; renderSearchView(); }
+
+    async function renderProductSearch() {
+      const container = $('search-content');
+      container.innerHTML = `
+        <div class="auth-field" style="margin-bottom:16px">
+          <input class="t-input" type="text" id="product-search-input" placeholder="Search products…" autocomplete="off"
+            oninput="filterProductSearch(this.value)" />
+        </div>
+        <div id="product-search-results"><p style="font-size:13px;color:var(--muted);text-align:center;padding:30px 0">Loading…</p></div>`;
+
+      const rated = await fetchLeaderboardData();
+      const ratedNorms = new Set(rated.map(r => normalizeGiftName(r.name)));
+      const unrated = PRODUCT_CATALOG
+        .filter(n => !ratedNorms.has(normalizeGiftName(n)))
+        .map(n => ({ name: n, tags: [], score: null, count: 0 }));
+      _searchProductPool = [...rated, ...unrated];
+      filterProductSearch($('product-search-input')?.value || '');
+    }
+
+    function filterProductSearch(q) {
+      const resultsEl = $('product-search-results');
+      if (!resultsEl) return;
+      const query = q.trim().toLowerCase();
+      const pool = query ? _searchProductPool.filter(p => p.name.toLowerCase().includes(query)) : _searchProductPool;
+      const sorted = [...pool].sort((a,b) => (b.score||0) - (a.score||0)).slice(0, 40);
+      _searchProductResults = sorted;
+
+      if (!sorted.length) {
+        resultsEl.innerHTML = `<div class="rankings-empty"><p style="font-size:14px;color:var(--muted)">No products found.</p></div>`;
+        return;
+      }
+      resultsEl.innerHTML = `<div class="lb-list">${sorted.map((p, i) => `
+        <div class="lb-item">
+          <div class="lb-info">
+            <div class="lb-name">${esc(p.name)}</div>
+            <div class="lb-meta">
+              ${p.score != null
+                ? `<span class="lb-rating">★ ${p.score.toFixed(1)}</span><span class="lb-votes">${p.count} ${p.count===1?'rating':'ratings'}</span>`
+                : `<span class="lb-votes">Not yet rated</span>`}
+            </div>
+          </div>
+          <button class="tag-add-btn" onclick="rateSearchResult(${i})">Rate</button>
+        </div>`).join('')}</div>`;
+    }
+
+    function rateSearchResult(i) {
+      const item = _searchProductResults[i];
+      if (item) openRankModal(item.name);
+    }
+
+    function renderPeopleSearch() {
+      const container = $('search-content');
+      container.innerHTML = `<div class="import-box">
+        <h3>Find people</h3>
+        <p>Search by their @username to follow them.</p>
+        <div class="import-row">
+          <input class="t-input" type="text" id="username-search-input" placeholder="@username"
+            oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_@]/g,'')" />
+          <button class="tag-add-btn" onclick="searchUsername()">Search</button>
+        </div>
+        <div id="username-search-result"></div>
+        <div id="username-search-err" style="font-size:12px;color:var(--decline);margin-top:7px;display:none"></div>
+      </div>`;
+    }
 
     /* ── GIFT PROFILES ── */
     const PROFILE_KEY  = 'gf_my_profile_v1';
-    const FRIENDS_KEY  = 'gf_friends_v1';
     // Transient state for the add-wishlist row
     let wishInput      = { name: '', url: '', price: '' };
 
@@ -2505,69 +3050,90 @@
       catch { return blankProfile(); }
     }
     function blankProfile() {
-      return { color:'#1A6FFF', name:'', bio:'', brands:[], interests:[], wishlist:[], dontWant:[] };
+      return { color:'#1A6FFF', username:'', name:'', bio:'', brands:[], interests:[], wishlist:[], dontWant:[] };
     }
     function saveMyProfileLocal(p) { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }
 
-    function loadFriends() {
-      try { return JSON.parse(localStorage.getItem(FRIENDS_KEY)) || []; }
-      catch { return []; }
-    }
-    function saveFriendsLocal(f) { localStorage.setItem(FRIENDS_KEY, JSON.stringify(f)); }
+    /* ── FOLLOWS (Supabase-backed) ──
+       Who you follow is a real relationship in the `follows` table (see schema.sql),
+       not a local list — that's what lets other people find and follow you by username. */
+    let _followingCache = [];   // last-fetched list of people the signed-in user follows
+    let _followerCount  = 0;
+    let _followingCount = 0;
 
-    function encodeProfile(p) {
-      try { return btoa(unescape(encodeURIComponent(JSON.stringify(p)))); }
-      catch { return ''; }
-    }
-    function decodeProfile(code) {
-      try { return JSON.parse(decodeURIComponent(escape(atob(code.trim())))); }
-      catch { return null; }
+    async function loadFollowing(userId) {
+      const { data: rows } = await sb.from('follows')
+        .select('followee_id, created_at')
+        .eq('follower_id', userId)
+        .order('created_at', { ascending: false });
+      if (!rows || !rows.length) return [];
+      const ids = rows.map(r => r.followee_id);
+      const { data: profiles } = await sb.from('user_profiles')
+        .select('user_id, username, display_name, profile_data')
+        .in('user_id', ids);
+      const byId = new Map((profiles || []).map(pr => [pr.user_id, pr]));
+      return rows.map(r => {
+        const pr = byId.get(r.followee_id);
+        const profile = (pr?.profile_data && Object.keys(pr.profile_data).length)
+          ? pr.profile_data
+          : { name: pr?.display_name || 'User', color: '#1A6FFF', brands: [], interests: [], wishlist: [], dontWant: [] };
+        return { userId: r.followee_id, username: pr?.username || '', addedAt: new Date(r.created_at).getTime(), profile };
+      });
     }
 
-    function renderProfiles() {
-      const friends = loadFriends();
+    // Cheap re-render using cached follow data — for edits (tags, wishlist, bio) that don't touch follows.
+    function refreshMyProfile() { $('myprofile-body').innerHTML = renderMyProfile(); }
 
-      // Wishlist feed
+    // Full refresh — refetches follow counts + following list. Use on view entry and after follow/unfollow.
+    async function renderMyProfileView() {
+      $('myprofile-body').innerHTML = renderMyProfile();
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const [followersRes, followingRes, following] = await Promise.all([
+        sb.from('follows').select('follower_id', { count: 'exact', head: true }).eq('followee_id', user.id),
+        sb.from('follows').select('followee_id', { count: 'exact', head: true }).eq('follower_id', user.id),
+        loadFollowing(user.id),
+      ]);
+      _followerCount  = followersRes.count  || 0;
+      _followingCount = followingRes.count || 0;
+      _followingCache = following;
+      $('myprofile-body').innerHTML = renderMyProfile();
+    }
+
+    function buildFriendsFeedHtml(following) {
       const wishItems = [];
-      friends.forEach((f, fi) => {
+      following.forEach((f, fi) => {
         (f.profile.wishlist || []).forEach(w => {
           wishItems.push({ friend: f.profile, friendIdx: fi, item: w, addedAt: f.addedAt });
         });
       });
       wishItems.sort((a, b) => b.addedAt - a.addedAt);
+      if (!wishItems.length) return '';
 
-      let feedHtml = '';
-      if (wishItems.length) {
-        feedHtml = `<div class="feed-section">
-          <div class="feed-section-label">What your friends want</div>`;
-        wishItems.forEach(({ friend, friendIdx, item }) => {
-          const linkBtn = item.url
-            ? `<a class="feed-btn-ghost" href="${esc(item.url)}" target="_blank" rel="noopener">View ↗</a>`
-            : '';
-          feedHtml += `<div class="feed-card">
-            <div class="feed-card-who">
-              <div class="feed-who-avatar" style="background:${friend.color||'#1A6FFF'};color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0">${(friend.name||'?')[0].toUpperCase()}</div>
-              <div>
-                <div class="feed-who-name">${esc(friend.name)}</div>
-                <div class="feed-who-sub">added to wishlist</div>
-              </div>
+      let feedHtml = `<div class="feed-section">
+        <div class="feed-section-label">What your friends want</div>`;
+      wishItems.forEach(({ friend, friendIdx, item }) => {
+        const linkBtn = item.url
+          ? `<a class="feed-btn-ghost" href="${esc(item.url)}" target="_blank" rel="noopener">View ↗</a>`
+          : '';
+        feedHtml += `<div class="feed-card">
+          <div class="feed-card-who">
+            <div class="feed-who-avatar" style="background:${friend.color||'#1A6FFF'};color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0">${(friend.name||'?')[0].toUpperCase()}</div>
+            <div>
+              <div class="feed-who-name">${esc(friend.name)}</div>
+              <div class="feed-who-sub">added to wishlist</div>
             </div>
-            <div class="feed-gift-name">${esc(item.name)}</div>
-            ${item.price ? `<div class="feed-gift-price">${esc(item.price)}</div>` : ''}
-            <div class="feed-card-btns">
-              ${linkBtn}
-              <button class="feed-btn-primary" onclick="giftFriend(${friendIdx})">Find a gift for ${esc(friend.name.split(' ')[0])} →</button>
-            </div>
-          </div>`;
-        });
-        feedHtml += `</div>`;
-      }
-
-      $('profiles-body').innerHTML = feedHtml + renderFriends();
-    }
-
-    function renderMyProfileView() {
-      $('myprofile-body').innerHTML = renderMyProfile();
+          </div>
+          <div class="feed-gift-name">${esc(item.name)}</div>
+          ${item.price ? `<div class="feed-gift-price">${esc(item.price)}</div>` : ''}
+          <div class="feed-card-btns">
+            ${linkBtn}
+            <button class="feed-btn-primary" onclick="giftFriend(${friendIdx})">Find a gift for ${esc(friend.name.split(' ')[0])} →</button>
+          </div>
+        </div>`;
+      });
+      feedHtml += `</div>`;
+      return feedHtml;
     }
 
     function updateSbPopup() {
@@ -2598,13 +3164,6 @@
           <button class="wishlist-item-del" onclick="removeWish(${i})">×</button>
         </div>`).join('');
 
-      const code = encodeProfile(p);
-      const shareBox = p.name ? `
-        <div class="profile-share-box">
-          <div class="share-code" id="share-code-display">${code.slice(0,40)}…</div>
-          <button class="share-copy-btn" onclick="copyShareCode()">Copy code</button>
-        </div>` : `<p style="font-size:13px;color:var(--muted)">Add your name above to unlock sharing.</p>`;
-
       return `
         <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
 
@@ -2619,10 +3178,11 @@
             <div class="profile-ph-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
           </div>
           <div class="profile-hdr-name">${p.name ? esc(p.name) : '<span style="color:rgba(6,6,40,0.28);font-weight:500;font-size:15px">Add your name</span>'}</div>
+          ${p.username ? `<div class="profile-hdr-username">@${esc(p.username)}</div>` : ''}
           ${p.bio ? `<div class="profile-hdr-bio">${esc(p.bio)}</div>` : ''}
           <div class="profile-stats-row">
-            <div class="profile-stat"><span class="profile-stat-n">${p.followers||0}</span><span class="profile-stat-l">Followers</span></div>
-            <div class="profile-stat"><span class="profile-stat-n">${p.following||0}</span><span class="profile-stat-l">Following</span></div>
+            <div class="profile-stat"><span class="profile-stat-n">${_followerCount}</span><span class="profile-stat-l">Followers</span></div>
+            <div class="profile-stat"><span class="profile-stat-n">${_followingCount}</span><span class="profile-stat-l">Following</span></div>
           </div>
           <button class="edit-profile-btn" onclick="document.getElementById('p-name').focus();document.getElementById('p-name').scrollIntoView({behavior:'smooth',block:'center'})">Edit Profile</button>
         </div>
@@ -2636,7 +3196,24 @@
           <div style="display:flex;flex-direction:column;gap:8px">
             <input class="t-input" type="text" id="p-name" placeholder="Your name (e.g. Alex)" value="${esc(p.name)}" maxlength="40" />
             <input class="t-input" type="text" id="p-bio" placeholder="Short bio (optional)" value="${esc(p.bio)}" maxlength="120" />
+            <div style="position:relative">
+              <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(6,6,40,0.35);font-size:14px;pointer-events:none;user-select:none">@</span>
+              <input class="t-input" type="text" id="p-username" placeholder="username" value="${esc(p.username||'')}" maxlength="20" style="padding-left:26px" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9._-]/g,'')" />
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:-4px;padding-left:2px">Unique — friends can search you by this</div>
+            <p class="err" id="p-username-err" style="display:none">That username isn't available.</p>
           </div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-hd">
+            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+            <div><div class="profile-section-title">Your List</div>
+            <div class="profile-section-desc">Gifts you've received and rated</div></div>
+          </div>
+          <button class="add-gift-btn" onclick="goToMyRankings()" style="width:100%;justify-content:center">
+            ${loadRankings().length} rated ${loadRankings().length===1?'gift':'gifts'} — View your list →
+          </button>
         </div>
 
         <div class="profile-section">
@@ -2703,43 +3280,11 @@
 
         <div class="profile-section">
           <div class="profile-section-hd">
-            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
-            <div><div class="profile-section-title">Share Your Profile</div>
-            <div class="profile-section-desc">Give this code to friends — they paste it in their app</div></div>
-          </div>
-          ${shareBox}
-        </div>
-
-        <div class="profile-section">
-          <div class="profile-section-hd">
             <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-            <div><div class="profile-section-title">Friends</div>
-            <div class="profile-section-desc">Add friends' profiles to find them the perfect gift</div></div>
+            <div><div class="profile-section-title">Following</div>
+            <div class="profile-section-desc">People you follow — find them the perfect gift</div></div>
           </div>
-          ${(()=>{
-            const friends = loadFriends();
-            const wishItems = [];
-            friends.forEach((f,fi) => (f.profile.wishlist||[]).forEach(w => wishItems.push({friend:f.profile,friendIdx:fi,item:w,addedAt:f.addedAt})));
-            wishItems.sort((a,b)=>b.addedAt-a.addedAt);
-            let feed = '';
-            if (wishItems.length) {
-              feed = `<div class="feed-section"><div class="feed-section-label">What your friends want</div>`;
-              wishItems.forEach(({friend,friendIdx,item}) => {
-                const linkBtn = item.url ? `<a class="feed-btn-ghost" href="${esc(item.url)}" target="_blank" rel="noopener">View ↗</a>` : '';
-                feed += `<div class="feed-card">
-                  <div class="feed-card-who">
-                    <div class="feed-who-avatar" style="background:${friend.color||'#1A6FFF'};color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0">${(friend.name||'?')[0].toUpperCase()}</div>
-                    <div><div class="feed-who-name">${esc(friend.name)}</div><div class="feed-who-sub">added to wishlist</div></div>
-                  </div>
-                  <div class="feed-gift-name">${esc(item.name)}</div>
-                  ${item.price?`<div class="feed-gift-price">${esc(item.price)}</div>`:''}
-                  <div class="feed-card-btns">${linkBtn}<button class="feed-btn-primary" onclick="giftFriend(${friendIdx})">Find a gift for ${esc(friend.name.split(' ')[0])} →</button></div>
-                </div>`;
-              });
-              feed += `</div>`;
-            }
-            return feed + renderFriends();
-          })()}
+          ${buildFriendsFeedHtml(_followingCache)}${renderFriends(_followingCache)}
         </div>
 
         <button class="save-profile-btn" id="save-profile-btn" onclick="saveProfile()">Save Profile</button>
@@ -2748,26 +3293,14 @@
     }
 
     /* ── FRIENDS RENDER ── */
-    function renderFriends() {
-      const friends = loadFriends();
-
-      const importBox = `<div class="import-box">
-        <h3>Add a friend's profile</h3>
-        <p>Ask your friend to share their code from Persent, then paste it below.</p>
-        <div class="import-row">
-          <input class="t-input" type="text" id="import-code" placeholder="Paste friend's code…" />
-          <button class="tag-add-btn" onclick="importFriend()">Add</button>
-        </div>
-        <div id="import-err" style="font-size:12px;color:var(--decline);margin-top:7px;display:none"></div>
-      </div>`;
-
-      if (!friends.length) return importBox + `<div class="profiles-empty">
+    function renderFriends(following) {
+      if (!following.length) return `<div class="profiles-empty">
         <div class="profiles-empty-icon"></div>
-        <h3>No friend profiles yet</h3>
-        <p>Ask a friend to share their Gift Profile code and paste it above.</p>
+        <h3>Not following anyone yet</h3>
+        <p>Find people in the Search tab.</p>
       </div>`;
 
-      const cards = friends.map((f, fi) => {
+      const cards = following.map((f, fi) => {
         const p = f.profile;
         const initial = (p.name || '?')[0].toUpperCase();
         const brandTags  = (p.brands||[]).map(t=>`<span class="friend-tag">${esc(t)}</span>`).join('');
@@ -2785,6 +3318,7 @@
             <div class="friend-avatar" style="background:${p.color||'#1A6FFF'}">${initial}</div>
             <div style="flex:1">
               <div class="friend-name">${esc(p.name||'Friend')}</div>
+              ${f.username ? `<div style="font-size:11px;color:rgba(6,6,40,0.38);margin-top:1px">@${esc(f.username)}</div>` : ''}
               ${p.bio?`<div class="friend-bio">${esc(p.bio)}</div>`:''}
             </div>
           </div>
@@ -2796,12 +3330,12 @@
           </div>
           <div class="friend-card-footer">
             <button class="gift-friend-btn" onclick="giftFriend(${fi})">Find gifts for ${esc(p.name||'them')}</button>
-            <button class="remove-friend-btn" onclick="removeFriend(${fi})">Remove</button>
+            <button class="remove-friend-btn" onclick="unfollowUser(${fi})">Unfollow</button>
           </div>
         </div>`;
       }).join('');
 
-      return importBox + `<div class="friend-cards">${cards}</div>`;
+      return `<div class="friend-cards">${cards}</div>`;
     }
 
     /* ── PROFILE ACTIONS ── */
@@ -2836,7 +3370,7 @@
           p.photo = dataUrl;
           saveMyProfileLocal(p);
           syncNavAvatar(p);
-          renderMyProfileView();
+          refreshMyProfile();
         };
         img.src = ev.target.result;
       };
@@ -2863,14 +3397,14 @@
       if (!val) return;
       const p = loadMyProfile();
       if (!p[cat].includes(val)) p[cat].push(val);
-      saveMyProfileLocal(p); el.value = ''; renderMyProfileView();
+      saveMyProfileLocal(p); el.value = ''; refreshMyProfile();
       setTimeout(() => $(inputId)?.focus(), 0);
     }
 
     function removeTag(cat, idx) {
       const p = loadMyProfile();
       p[cat].splice(idx, 1);
-      saveMyProfileLocal(p); renderMyProfileView();
+      saveMyProfileLocal(p); refreshMyProfile();
     }
 
     function addWish() {
@@ -2881,69 +3415,140 @@
       const p = loadMyProfile();
       p.wishlist.push({ id: Date.now(), name, price, url });
       saveMyProfileLocal(p);
-      renderMyProfileView();
+      refreshMyProfile();
     }
 
     function removeWish(idx) {
       const p = loadMyProfile();
       p.wishlist.splice(idx, 1);
-      saveMyProfileLocal(p); renderMyProfileView();
+      saveMyProfileLocal(p); refreshMyProfile();
     }
 
-    function saveProfile() {
-      const color = AVATAR_COLORS[profileColorIdx] || '#1A6FFF';
-      const name  = $('p-name').value.trim();
-      const bio   = $('p-bio').value.trim();
+    async function saveProfile() {
+      const color       = AVATAR_COLORS[profileColorIdx] || '#1A6FFF';
+      const name        = $('p-name').value.trim();
+      const bio         = $('p-bio').value.trim();
+      const usernameRaw = $('p-username') ? $('p-username').value.trim() : '';
       const p = loadMyProfile();
+      $('p-username-err').style.display = 'none';
+
+      if (usernameRaw) {
+        const v = validateUsername(usernameRaw);
+        if (!v.ok) { showProfileUsernameErr(v.error); return; }
+        if (v.normalized !== p.username) {
+          const { data: { user } } = await sb.auth.getUser();
+          const { data: existing } = await sb.from('user_profiles').select('user_id').eq('username', v.normalized).maybeSingle();
+          if (existing && existing.user_id !== user?.id) { showProfileUsernameErr('That username is taken.'); return; }
+        }
+        p.username = v.normalized;
+      } else {
+        p.username = '';
+      }
+
       p.color = color; p.name = name; p.bio = bio;
       saveMyProfileLocal(p);
       syncNavAvatar(p);
+      if (p.username) saveProfileToSupabase(p);
       const btn = $('save-profile-btn');
       btn.textContent = 'Saved ✓'; btn.classList.add('saved');
       setTimeout(() => { btn.textContent = 'Save Profile'; btn.classList.remove('saved'); }, 1800);
-      renderMyProfileView();
+      refreshMyProfile();
     }
 
-    function copyShareCode() {
-      const p = loadMyProfile();
-      if (!p.name) return;
-      const code = encodeProfile(p);
-      navigator.clipboard.writeText(code).then(() => {
-        const btn = document.querySelector('.share-copy-btn');
-        if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy code', 1800); }
-      });
+    function showProfileUsernameErr(msg) {
+      const el = $('p-username-err');
+      el.textContent = msg; el.style.display = 'block';
     }
 
-    function importFriend() {
-      const code = $('import-code').value.trim();
-      const errEl = $('import-err');
+    // Backed by the user_profiles + follows tables — see schema.sql.
+    async function saveProfileToSupabase(p) {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user || !p.username) return;
+      const { error } = await sb.from('user_profiles').upsert({
+        user_id: user.id,
+        username: p.username,
+        display_name: p.name || '',
+        profile_data: p,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      if (error) console.warn('Profile sync:', error.message);
+    }
+
+    let pendingFriendAdd = null;
+
+    async function searchUsername() {
+      const raw = ($('username-search-input').value || '').trim().toLowerCase().replace(/^@/, '');
+      const errEl = $('username-search-err');
+      const resultEl = $('username-search-result');
       errEl.style.display = 'none';
-      const profile = decodeProfile(code);
-      if (!profile || typeof profile !== 'object' || !profile.name) {
-        errEl.textContent = 'Invalid code — ask your friend to copy it again.';
+      resultEl.innerHTML = '';
+      if (!raw) return;
+      const mine = loadMyProfile().username;
+      if (raw === mine) { errEl.textContent = "That's your own username!"; errEl.style.display = 'block'; return; }
+      resultEl.innerHTML = '<p style="font-size:13px;color:var(--muted);margin:0">Searching…</p>';
+      const { data, error } = await sb.from('user_profiles')
+        .select('user_id, username, display_name, profile_data')
+        .eq('username', raw)
+        .maybeSingle();
+      resultEl.innerHTML = '';
+      if (error || !data) {
+        errEl.textContent = error ? 'Search failed — check your connection.' : 'No user found with that username.';
         errEl.style.display = 'block'; return;
       }
-      const myCode = encodeProfile(loadMyProfile());
-      if (code === myCode) {
-        errEl.textContent = "That's your own code — share it with a friend instead!";
+      const { data: { user: me } } = await sb.auth.getUser();
+      const { data: existingFollow } = await sb.from('follows')
+        .select('followee_id').eq('follower_id', me?.id).eq('followee_id', data.user_id).maybeSingle();
+      if (existingFollow) {
+        errEl.textContent = "You're already following this person.";
         errEl.style.display = 'block'; return;
       }
-      const friends = loadFriends();
-      const existing = friends.findIndex(f => encodeProfile(f.profile) === code);
-      if (existing !== -1) { errEl.textContent = 'You already have this friend\'s profile.'; errEl.style.display = 'block'; return; }
-      friends.unshift({ profile, addedAt: Date.now() });
-      saveFriendsLocal(friends);
+      const prof = data.profile_data || { name: data.display_name, color: '#1A6FFF', brands:[], interests:[], wishlist:[], dontWant:[] };
+      pendingFriendAdd = { userId: data.user_id, username: data.username, profile: prof };
+      const initial = (data.display_name || data.username || '?')[0].toUpperCase();
+      resultEl.innerHTML = `<div class="username-result">
+        <div style="background:${prof.color||'#1A6FFF'};color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">${esc(initial)}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${esc(data.display_name||data.username)}</div>
+          <div style="font-size:12px;color:var(--muted)">@${esc(data.username)}</div>
+        </div>
+        <button class="tag-add-btn" onclick="followUser()">Follow</button>
+      </div>`;
+    }
+
+    async function followUser() {
+      if (!pendingFriendAdd) return;
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const followedUsername = pendingFriendAdd.username;
+      const { error } = await sb.from('follows').insert({ follower_id: user.id, followee_id: pendingFriendAdd.userId });
+      pendingFriendAdd = null;
+      if (error) {
+        const errEl = $('username-search-err');
+        if (errEl) { errEl.textContent = "Couldn't follow — try again."; errEl.style.display = 'block'; }
+        console.warn('Follow error:', error.message);
+        return;
+      }
+      const resultEl = $('username-search-result');
+      if (resultEl) resultEl.innerHTML = `<p style="font-size:13px;color:var(--muted);margin:0">You're now following @${esc(followedUsername)}.</p>`;
+      renderMyProfileView(); // refresh cached following list/counts in the background for the Profile tab
+    }
+
+    async function unfollowUser(idx) {
+      const target = _followingCache[idx];
+      if (!target) return;
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      await sb.from('follows').delete().eq('follower_id', user.id).eq('followee_id', target.userId);
       renderMyProfileView();
     }
 
-    function removeFriend(idx) {
-      const friends = loadFriends();
-      friends.splice(idx, 1);
-      saveFriendsLocal(friends); renderMyProfileView();
+    function goToMyRankings() {
+      rankingsSubView = 'mine';
+      switchView('rankings');
     }
 
     function giftFriend(friendIdx) {
-      const friend = loadFriends()[friendIdx]?.profile;
+      const friend = _followingCache[friendIdx]?.profile;
       if (!friend) return;
 
       // Build rich recipient description from their profile
@@ -3006,6 +3611,9 @@
 
     let renderer, scene, camera, sphereGroup, animId;
     let loadedCount = 0, pendingCallbacks = null;
+    let textMat = null, lineGeo = null, lineMat = null, lineTotalCount = 0;
+    let introPhase = 0, introT = 0, lastNow = 0, sphereMeshMats = null;
+    let pendingTOs = [];
 
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/libs/draco/');
@@ -3070,7 +3678,7 @@
         'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/fonts/optimer_bold.typeface.json',
         font => {
           const geo = new TextGeometry('PERSENT', {
-            font, size: 0.52, depth: 0.12,
+            font, size: 0.44, depth: 0.12,
             curveSegments: 8,
             bevelEnabled: true, bevelThickness: 0.022, bevelSize: 0.012, bevelSegments: 3,
           });
@@ -3078,41 +3686,50 @@
           const cx = (geo.boundingBox.max.x + geo.boundingBox.min.x) / 2;
           const cy = (geo.boundingBox.max.y + geo.boundingBox.min.y) / 2;
           geo.translate(-cx, -cy, 0);
-          const mat = new THREE.MeshStandardMaterial({
+          textMat = new THREE.MeshStandardMaterial({
             color: 0x060628, metalness: 0.6, roughness: 0.15,
             emissive: 0x1A6FFF, emissiveIntensity: 0.18, fog: false,
-            depthTest: false,
+            depthTest: false, transparent: true, opacity: 0,
           });
-          const textMesh = new THREE.Mesh(geo, mat);
+          const textMesh = new THREE.Mesh(geo, textMat);
           textMesh.renderOrder = 999;
           scene.add(textMesh);
         }
       );
 
       sphereGroup = new THREE.Group();
+      sphereGroup.visible = false;
       scene.add(sphereGroup);
 
-      // Connecting lines between nearby nodes
-      const pts = [];
+      // Connecting lines between nearby nodes — sorted equator-first for grow animation
+      const linePairs = [];
       for (let i = 0; i < N; i++) {
         for (let j = i + 1; j < N; j++) {
           const a = positions[i], b = positions[j];
           const dx = a.nx-b.nx, dy = a.ny-b.ny, dz = a.nz-b.nz;
           if (Math.sqrt(dx*dx+dy*dy+dz*dz) < 1.05) {
-            pts.push(
-              new THREE.Vector3(a.nx*SPHERE_R, a.ny*SPHERE_R, a.nz*SPHERE_R),
-              new THREE.Vector3(b.nx*SPHERE_R, b.ny*SPHERE_R, b.nz*SPHERE_R)
-            );
+            linePairs.push({ a, b, midY: Math.abs((a.ny + b.ny) / 2) });
           }
         }
       }
-      const lineMat = new THREE.LineBasicMaterial({ color: 0x1A6FFF, transparent: true, opacity: 0.35 });
-      sphereGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
+      linePairs.sort((x, y) => x.midY - y.midY);
+      const pts = [];
+      linePairs.forEach(({ a, b }) => {
+        pts.push(
+          new THREE.Vector3(a.nx*SPHERE_R, a.ny*SPHERE_R, a.nz*SPHERE_R),
+          new THREE.Vector3(b.nx*SPHERE_R, b.ny*SPHERE_R, b.nz*SPHERE_R)
+        );
+      });
+      lineTotalCount = pts.length;
+      lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+      lineMat = new THREE.LineBasicMaterial({ color: 0x1A6FFF, transparent: true, opacity: 0 });
+      sphereGroup.add(new THREE.LineSegments(lineGeo, lineMat));
 
       preloaded.forEach((gltf, i) => gltf && placeModel(gltf, i));
       pendingCallbacks = (gltf, i) => placeModel(gltf, i);
 
       window.addEventListener('resize', onResize);
+      renderer.render(scene, camera); // clear canvas to white immediately
     }
 
     function onResize() {
@@ -3132,25 +3749,51 @@
       if (!allLoaded && now - lastFrame < 33) return;
       lastFrame = now;
 
-      if (!uiReady) {
-        const fill = document.getElementById('ls-fill');
-        if (fill) fill.style.width = ((loadedCount / N) * 100) + '%';
+      const dt = (now && lastNow > 0) ? Math.min((now - lastNow) / 1000, 0.05) : 0;
+      lastNow = now || 0;
 
-        if (allLoaded) {
-          uiReady = true;
-          if (renderer) renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-          setTimeout(() => {
-            const ov = document.getElementById('ls-overlay');
-            if (ov) {
-              ov.classList.add('ls-out');
-              setTimeout(() => { if (ov) ov.style.display = 'none'; }, 780);
+      if (!uiReady && allLoaded) {
+        uiReady = true;
+        if (renderer) renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const ov = document.getElementById('ls-overlay');
+        if (ov) { ov.style.opacity = ''; void ov.offsetHeight; ov.classList.add('ls-out'); pendingTOs.push(setTimeout(() => { if (ov) ov.style.display = 'none'; }, 780)); }
+        pendingTOs.push(setTimeout(() => { introPhase = 1; introT = 0; }, 400));
+      }
+
+      const easeOut = t => 1 - Math.pow(1 - t, 2);
+
+      if (sphereGroup) sphereGroup.visible = introPhase >= 2;
+
+      if (introPhase === 1) {
+        introT += dt;
+        const t = Math.min(introT / 1.0, 1);
+        if (textMat) textMat.opacity = easeOut(t);
+        if (t >= 1) {
+          introPhase = 2; introT = 0;
+          sphereMeshMats = [];
+          sphereGroup.traverse(child => {
+            if (child.isMesh) {
+              child.material = child.material.clone();
+              child.material.transparent = true;
+              child.material.opacity = 0;
+              sphereMeshMats.push(child.material);
             }
-            setTimeout(() => {
-              const tap = document.getElementById('landing-tap');
-              if (tap) tap.classList.add('tap-in');
-            }, 350);
-          }, 420);
+          });
+          pendingTOs.push(setTimeout(() => {
+            const tap = document.getElementById('landing-tap');
+            if (tap) tap.classList.add('tap-in');
+          }, 850));
         }
+      } else if (introPhase === 2) {
+        introT += dt;
+        const t = Math.min(introT / 0.8, 1);
+        const op = easeOut(t);
+        if (lineMat) lineMat.opacity = 0.35 * op;
+        if (sphereMeshMats) {
+          sphereMeshMats.forEach(m => m.opacity = op);
+          if (t >= 1) sphereMeshMats = null;
+        }
+        if (t >= 1) { introPhase = 3; }
       }
 
       ry += 0.003;
@@ -3158,15 +3801,18 @@
       renderer.render(scene, camera);
     }
 
-    function start() { init(); loop(); }
+    function start() { init(); requestAnimationFrame(() => requestAnimationFrame(loop)); }
 
     function stop() {
       if (animId) { cancelAnimationFrame(animId); animId = null; }
       if (renderer) { renderer.dispose(); renderer = null; }
       window.removeEventListener('resize', onResize);
+      pendingTOs.forEach(clearTimeout); pendingTOs = [];
       uiReady = false;
+      introPhase = 0; introT = 0; lastNow = 0;
+      textMat = null; lineGeo = null; lineMat = null; lineTotalCount = 0; sphereMeshMats = null;
       const ov = document.getElementById('ls-overlay');
-      if (ov) { ov.classList.remove('ls-out'); ov.style.display = ''; }
+      if (ov) { ov.classList.remove('ls-out'); ov.style.display = ''; ov.style.opacity = '1'; }
       const fill = document.getElementById('ls-fill');
       if (fill) fill.style.width = '0%';
       const tap = document.getElementById('landing-tap');
