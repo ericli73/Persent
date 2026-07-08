@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import Groq from 'groq-sdk';
+import { createClient } from '@supabase/supabase-js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -12,6 +13,17 @@ app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// ── Supabase (server-side) ───────────────────────────────────────────────────
+// Anon key mirrors the one embedded in public/index.html — it's meant to be public,
+// access is enforced by RLS. The service-role key is NOT public: it bypasses RLS
+// entirely and must only ever live server-side (set it in .env, never in the client).
+const SUPABASE_URL = 'https://devxzpkaboprzzllxykm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRldnh6cGthYm9wcnp6bGx4eWttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNjE5MTUsImV4cCI6MjA5NjYzNzkxNX0.h6gtyrIhGZYgE9Jq5KL62X77xr8lAabiPs10JaH9vsU';
+const supabaseAnon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+  : null;
 
 // ── Product image: Serper image search ───────────────────────────────────────
 // Shopping results return low-res thumbnails. This fetches a full-size product
@@ -175,6 +187,37 @@ app.post('/api/suggest', async (req, res) => {
     console.error('Suggestion error:', err.message);
     res.status(500).json({ error: 'Could not fetch a suggestion. Please try again.' });
   }
+});
+
+// Sign in with an email OR a username. Username → email resolution happens here,
+// server-side, using the service-role key — the browser never sees the resolved
+// email, and errors are deliberately generic so a login attempt can't be used to
+// probe whether a given username exists.
+app.post('/api/login', async (req, res) => {
+  const { identifier, password } = req.body;
+  if (!identifier || !password) return res.status(400).json({ error: 'Missing credentials.' });
+
+  const GENERIC_ERROR = 'Invalid login credentials.';
+  let email = identifier.trim();
+
+  if (!email.includes('@')) {
+    if (!supabaseAdmin) {
+      console.error('Username login attempted but SUPABASE_SERVICE_ROLE_KEY is not set in .env.');
+      return res.status(500).json({ error: 'Username login is not configured on this server.' });
+    }
+    const username = email.toLowerCase();
+    const { data: profile } = await supabaseAdmin.from('user_profiles').select('user_id').eq('username', username).maybeSingle();
+    if (!profile) return res.status(400).json({ error: GENERIC_ERROR });
+
+    const { data: userRes, error: userErr } = await supabaseAdmin.auth.admin.getUserById(profile.user_id);
+    if (userErr || !userRes?.user?.email) return res.status(400).json({ error: GENERIC_ERROR });
+    email = userRes.user.email;
+  }
+
+  const { data, error } = await supabaseAnon.auth.signInWithPassword({ email, password });
+  if (error || !data.session) return res.status(400).json({ error: GENERIC_ERROR });
+
+  res.json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
 });
 
 export default app;

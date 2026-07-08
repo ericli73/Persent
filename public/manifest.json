@@ -1,0 +1,14 @@
+{
+  "name": "Persent",
+  "short_name": "Persent",
+  "description": "AI-powered gift recommendations, tailored to the person, occasion, and budget.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F4F7FF",
+  "theme_color": "#1A6FFF",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

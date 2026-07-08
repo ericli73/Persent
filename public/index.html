@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Persent</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1A6FFF">
+  <!-- iOS only treats a site as an installable, notification-capable app via these — not present for a regular Safari tab -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Persent">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -55,98 +62,24 @@
       border-radius: 50%; animation: spin .75s linear infinite;
     }
 
-    /* ── AUTH MODAL (shared with username setup) ── */
-    #auth-modal-overlay, #username-modal-overlay {
+    /* ── USERNAME + BIRTHDAY SETUP (full-screen, same theme as #auth-screen below) ── */
+    #username-modal-overlay {
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       width: min(390px, 100vw);
       height: min(844px, 100dvh);
-      border-radius: 32px;
-      overflow: hidden;
-      z-index: 300;
-      background: rgba(6,6,32,0.38);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;
-      opacity: 0;
-      transition: opacity 0.22s ease;
-    }
-    #auth-modal-overlay.hidden, #username-modal-overlay.hidden { display: none; }
-    #auth-modal-overlay.visible, #username-modal-overlay.visible { opacity: 1; }
-    @media (max-width: 430px) {
-      #auth-modal-overlay, #username-modal-overlay { top: 0; left: 0; transform: none; width: 100%; height: 100dvh; border-radius: 0; }
-    }
-
-    .auth-modal {
-      background: #fff;
-      border-radius: 24px;
-      width: 100%; max-width: 400px;
-      max-height: 90vh;
+      border-radius: 44px;
       overflow-y: auto;
-      padding: 36px 36px 28px;
-      box-shadow: 0 32px 80px rgba(6,6,32,0.22), 0 0 0 1px rgba(6,6,32,0.05);
-      position: relative;
-      transform: translateY(20px) scale(0.97);
-      transition: transform 0.35s cubic-bezier(0.23,1,0.32,1);
+      z-index: 300;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      padding: 20px 28px 40px;
     }
-    #auth-modal-overlay.visible .auth-modal, #username-modal-overlay.visible .auth-modal { transform: translateY(0) scale(1); }
-
-    .auth-close {
-      position: absolute; top: 14px; right: 14px;
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(6,6,32,0.06); border: none; cursor: pointer;
-      font-size: 13px; color: rgba(6,6,32,0.45);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s, color 0.15s;
+    #username-modal-overlay.hidden { display: none; }
+    @media (max-width: 430px) {
+      #username-modal-overlay { top: 0; left: 0; transform: none; width: 100%; height: 100dvh; border-radius: 0; }
     }
-    .auth-close:hover { background: rgba(6,6,32,0.11); color: #060620; }
-
-    .auth-brand { text-align: center; margin-bottom: 24px; }
-    .auth-logo  { font-size: 36px; display: block; margin-bottom: 10px; }
-    .auth-title {
-      font-family: 'Public Sans', sans-serif;
-      font-size: 26px; font-weight: 700; color: #060620;
-      margin: 0 0 5px;
-    }
-    .auth-tag { color: rgba(6,6,32,0.45); font-size: 14px; margin: 0; }
-
-    .auth-google, .auth-option-btn {
-      width: 100%; padding: 13px 18px;
-      background: #fff; border: 1.5px solid rgba(6,6,32,0.12);
-      border-radius: 12px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      gap: 10px; font-size: 14px; font-weight: 600;
-      color: #060620; font-family: 'Public Sans', sans-serif;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .auth-google:hover, .auth-option-btn:hover { border-color: rgba(6,6,32,0.24); box-shadow: 0 2px 12px rgba(6,6,32,0.07); }
-    .auth-option-btn { margin-bottom: 10px; }
-
-    #auth-methods { display: flex; flex-direction: column; }
-
-    .auth-divider {
-      display: flex; align-items: center; gap: 12px;
-      margin: 14px 0; color: rgba(6,6,32,0.3); font-size: 12px;
-    }
-    .auth-divider::before, .auth-divider::after {
-      content: ''; flex: 1; height: 1px; background: rgba(6,6,32,0.09);
-    }
-
-    .auth-back {
-      background: none; border: none; cursor: pointer;
-      color: rgba(6,6,32,0.45); font-size: 13px; font-family: 'Public Sans', sans-serif;
-      padding: 0 0 16px; display: flex; align-items: center; gap: 4px;
-      transition: color 0.15s;
-    }
-    .auth-back:hover { color: #060620; }
-
-    .auth-otp-hint {
-      font-size: 14px; color: rgba(6,6,32,0.55); margin: 0 0 16px;
-      text-align: center; line-height: 1.5;
-    }
-    .auth-otp-hint strong { color: #060620; }
 
     .auth-field { margin-bottom: 10px; }
     .t-input {
@@ -170,12 +103,6 @@
     .btn-p:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(26,111,255,0.48); }
     .btn-p:active { transform: scale(0.98); box-shadow: none; }
 
-    .auth-toggle {
-      text-align: center; font-size: 13px; color: rgba(6,6,32,0.45); margin-top: 14px;
-    }
-    .auth-toggle span { color: #1A6FFF; font-weight: 600; cursor: pointer; }
-    .auth-toggle span:hover { text-decoration: underline; }
-
     .auth-msg {
       font-size: 13px; margin-top: 10px; text-align: center;
       padding: 10px; border-radius: 9px; display: none;
@@ -183,10 +110,115 @@
     .auth-msg.error { color: #dc2626; background: #fef2f2; }
     .auth-msg.success { color: #16a34a; background: #f0fdf4; }
 
-    .auth-footer {
-      text-align: center; font-size: 11px; color: rgba(6,6,32,0.28);
-      margin-top: 18px; line-height: 1.6;
+    /* ── AUTH SCREEN (full-screen login/register — replaces the old popup modal) ── */
+    #auth-screen {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(390px, 100vw);
+      height: min(844px, 100dvh);
+      border-radius: 44px;
+      overflow-y: auto;
+      z-index: 250;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      padding: 20px 28px 40px;
     }
+    #auth-screen.hidden { display: none; }
+    @media (max-width: 430px) {
+      #auth-screen { top: 0; left: 0; transform: none; width: 100%; height: 100dvh; border-radius: 0; }
+    }
+
+    .auth-screen-topbar {
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px 0 8px; flex-shrink: 0;
+    }
+    .auth-screen-title {
+      font-family: 'Public Sans', sans-serif; font-size: 19px; font-weight: 700; color: var(--text);
+    }
+
+    .auth-screen-body { flex: 1; display: flex; flex-direction: column; padding-top: 20px; }
+    .auth-field-label {
+      display: block; font-size: 12.5px; font-weight: 600; color: var(--muted);
+      margin: 18px 0 8px;
+    }
+    .auth-field-label:first-child { margin-top: 0; }
+
+    .auth-pill-input {
+      width: 100%; padding: 15px 20px; box-sizing: border-box;
+      border: 1.5px solid var(--border); border-radius: 50px;
+      font-family: 'Public Sans', sans-serif; font-size: 14px; color: var(--text);
+      background: #fff; outline: none; transition: border-color 0.15s;
+    }
+    .auth-pill-input:focus { border-color: var(--primary); }
+    .auth-pill-input::placeholder { color: rgba(6,6,40,0.32); }
+
+    .auth-password-wrap { position: relative; }
+    .auth-password-wrap .auth-pill-input { padding-right: 50px; }
+    .auth-eye-btn {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+      background: none; color: rgba(6,6,40,0.4);
+      display: flex; align-items: center; justify-content: center;
+      transition: color .15s;
+    }
+    .auth-eye-btn:hover { color: var(--primary); }
+
+    .auth-row-between {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 16px 0 22px; font-size: 13px;
+    }
+    .auth-remember { display: flex; align-items: center; gap: 7px; color: var(--muted); cursor: pointer; user-select: none; }
+    .auth-remember input { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+    .auth-forgot-link { color: var(--primary); font-weight: 600; cursor: pointer; }
+    .auth-forgot-link:hover { text-decoration: underline; }
+
+    .auth-pill-btn {
+      width: 100%; padding: 16px; border: none; border-radius: 50px; cursor: pointer;
+      background: linear-gradient(135deg, #1A6FFF, #0044CC); color: #fff;
+      font-family: 'Public Sans', sans-serif; font-size: 15px; font-weight: 700;
+      box-shadow: 0 6px 20px rgba(26,111,255,0.32);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .auth-pill-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(26,111,255,0.42); }
+    .auth-pill-btn:active { transform: scale(0.98); box-shadow: none; }
+
+    .auth-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0; color: rgba(6,6,40,0.32); font-size: 12px;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .auth-google-pill {
+      width: 100%; padding: 14px 18px;
+      background: #fff; border: 1.5px solid var(--border);
+      border-radius: 50px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; font-size: 14px; font-weight: 600;
+      color: var(--text); font-family: 'Public Sans', sans-serif;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .auth-google-pill:hover { border-color: rgba(6,6,40,0.24); box-shadow: 0 2px 12px rgba(6,6,40,0.07); }
+
+    .auth-screen-bottom {
+      text-align: center; font-size: 13px; color: var(--muted); flex-shrink: 0; padding-top: 12px;
+    }
+    .auth-screen-bottom span.auth-toggle-link { color: var(--primary); font-weight: 700; cursor: pointer; }
+    .auth-screen-bottom span.auth-toggle-link:hover { text-decoration: underline; }
+
+    /* ── SIGN-UP WIZARD (birthday → username → password) ── */
+    .auth-step-title { font-family: 'Public Sans', sans-serif; font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .auth-step-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+    .auth-step-btn-row { display: flex; gap: 10px; margin-top: 20px; }
+    .auth-step-btn-row .auth-pill-btn { flex: 1; }
+    .auth-back-pill {
+      padding: 16px 22px; border-radius: 50px; border: 1.5px solid var(--border);
+      background: transparent; font-size: 15px; font-weight: 600; color: var(--muted);
+      cursor: pointer; transition: all .15s; font-family: 'Public Sans', sans-serif;
+    }
+    .auth-back-pill:hover { border-color: rgba(6,6,40,0.28); color: var(--text); }
 
     /* ── APP SHELL ── */
     body {
@@ -303,7 +335,7 @@
     .bottom-nav {
       flex-shrink: 0; height: 80px;
       display: flex; align-items: flex-start; padding-top: 8px;
-      background: rgba(255,255,255,0.92);
+      background: rgba(244,247,255,0.92);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid rgba(6,6,40,0.08);
       z-index: 100;
@@ -370,6 +402,8 @@
     .view-body { flex: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 24px; }
 
     /* ── GIFT DATING ── */
+    #discover-brand { flex-shrink: 0; padding: 16px 0 14px 20px; border-bottom: 1px solid rgba(6,6,40,0.08); }
+    #brand-canvas { display: block; }
     #setup-wrapper {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -403,16 +437,6 @@
     }
     .card-hd-text h2 { font-family: 'Public Sans', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
     .card-hd-text p { color: var(--muted); font-size: 13px; }
-
-    .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .opt-btn {
-      padding: 15px 16px; background: #fff;
-      border: 1.5px solid var(--border); border-radius: 12px;
-      font-family: 'Public Sans', sans-serif; font-size: 14px; font-weight: 500;
-      color: var(--text); cursor: pointer; text-align: left;
-      transition: border-color .15s, background .15s, color .15s;
-    }
-    .opt-btn:hover, .opt-btn.selected { border-color: var(--primary); background: #EDF2FF; color: var(--primary); }
 
     .budget-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
     .budget-div { color: var(--muted); text-align: center; }
@@ -635,13 +659,13 @@
     }
     .add-gift-btn:hover { background: var(--ph); }
 
-    .rankings-list { display: flex; flex-direction: column; gap: 10px; }
+    .rankings-list { display: flex; flex-direction: column; }
     .rank-card {
-      background: #fff; border-radius: 14px; padding: 18px 20px;
-      border: 1px solid rgba(6,6,40,0.06);
+      padding: 18px 4px;
+      border-bottom: 1px solid rgba(6,6,40,0.08);
       display: flex; align-items: flex-start; gap: 16px;
-      box-shadow: 0 1px 8px rgba(6,6,40,0.04);
     }
+    .rank-card:last-child { border-bottom: none; }
     .rank-num {
       font-family: 'Public Sans', sans-serif; font-size: 22px; font-weight: 800;
       color: rgba(6,6,40,0.15); min-width: 30px; line-height: 1;
@@ -736,18 +760,18 @@
 
     /* ── LEADERBOARD ── */
     .lb-filter-bar {
-      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 14px;
+      display: flex; gap: 18px; overflow-x: auto; padding-bottom: 14px;
+      margin-bottom: 4px; border-bottom: 1px solid rgba(6,6,40,0.08);
       scrollbar-width: none; -ms-overflow-style: none;
     }
     .lb-filter-bar::-webkit-scrollbar { display: none; }
     .lb-filter-chip {
-      flex-shrink: 0; padding: 6px 14px; border-radius: 50px;
-      border: 1.5px solid rgba(6,6,40,0.13); background: #fff;
-      font-family: 'Public Sans', sans-serif; font-size: 12px; font-weight: 500;
+      flex-shrink: 0; padding: 0 0 4px; border: none; border-bottom: 2px solid transparent;
+      background: none; font-family: 'Public Sans', sans-serif; font-size: 12px; font-weight: 500;
       color: rgba(6,6,40,0.55); cursor: pointer; transition: all .15s; white-space: nowrap;
     }
-    .lb-filter-chip:hover { border-color: var(--primary); color: var(--primary); }
-    .lb-filter-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+    .lb-filter-chip:hover { color: var(--primary); }
+    .lb-filter-chip.active { border-color: var(--primary); color: var(--primary); font-weight: 600; }
 
     /* ── RANK TAG CHIPS ── */
     .rm-tag-group { margin-bottom: 12px; }
@@ -761,15 +785,13 @@
     .rm-tag-chip.active { border-color: var(--primary); background: rgba(26,111,255,0.08); color: var(--primary); font-weight: 600; }
     .rank-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
     .rank-tag-pill { padding: 2px 8px; border-radius: 50px; background: rgba(26,111,255,0.08); color: var(--primary); font-size: 11px; font-weight: 500; }
-    .lb-list { display: flex; flex-direction: column; gap: 8px; }
+    .lb-list { display: flex; flex-direction: column; }
     .lb-item {
-      background: #fff; border-radius: 14px; padding: 16px 20px;
-      border: 1px solid rgba(6,6,40,0.06);
+      padding: 14px 4px;
+      border-bottom: 1px solid rgba(6,6,40,0.08);
       display: flex; align-items: center; gap: 16px;
-      box-shadow: 0 1px 6px rgba(6,6,40,0.04);
-      transition: box-shadow .15s;
     }
-    .lb-item:hover { box-shadow: 0 3px 16px rgba(6,6,40,0.09); }
+    .lb-item:last-child { border-bottom: none; }
     .lb-rank {
       font-family: 'Public Sans', sans-serif; font-size: 20px; font-weight: 800;
       color: rgba(6,6,40,0.15); min-width: 28px; text-align: center;
@@ -1020,6 +1042,7 @@
       font-size: 13px; color: rgba(6,6,40,0.5); text-align: center;
       max-width: 230px; line-height: 1.45; margin-top: 1px;
     }
+    .profile-hdr-edit { width: 100%; max-width: 260px; }
     .profile-stats-row {
       display: flex; gap: 36px; margin: 10px 0 8px;
     }
@@ -1043,14 +1066,6 @@
       font-size: 26px; cursor: pointer; transition: border-color .15s;
     }
     .profile-emoji-pick:hover { border-color: var(--primary); }
-    .save-profile-btn {
-      padding: 11px 24px; border: none; border-radius: 11px; cursor: pointer;
-      background: var(--primary); color: #fff;
-      font-family: 'Public Sans', sans-serif; font-size: 14px; font-weight: 600;
-      transition: background .15s; box-shadow: 0 2px 12px rgba(26,111,255,0.22);
-    }
-    .save-profile-btn:hover { background: var(--ph); }
-    .save-profile-btn.saved { background: var(--accept); box-shadow: 0 2px 12px rgba(76,175,121,0.25); }
     .signout-btn {
       margin-top: 8px; padding: 11px 24px; border: 1.5px solid rgba(6,6,40,0.15); border-radius: 11px; cursor: pointer;
       background: transparent; color: rgba(6,6,40,0.55);
@@ -1070,10 +1085,6 @@
       .view-body { padding: 20px; }
       #setup-wrapper { padding: 20px; }
       #card-screen { padding: 8px 10px 12px; gap: 8px; }
-    }
-    @media (max-width: 500px) {
-      .auth-modal { padding: 26px 22px 20px; }
-      .opt-grid { grid-template-columns: 1fr; }
     }
 
     /* ══ LANDING PAGE ══ */
@@ -1524,20 +1535,54 @@
     <div class="spinner"></div>
   </div>
 
-  <!-- ══ AUTH MODAL ══ -->
-  <div id="auth-modal-overlay" class="hidden">
-    <div class="auth-modal">
-      <button class="auth-close" onclick="hideAuthModal()">✕</button>
+  <!-- ══ AUTH SCREEN (full-screen login/register) ══ -->
+  <div id="auth-screen" class="hidden">
+    <div class="auth-screen-topbar">
+      <h1 class="auth-screen-title" id="auth-screen-title">Login</h1>
+    </div>
 
-      <div class="auth-brand">
-        <span class="auth-logo">P</span>
-        <h2 class="auth-title" id="auth-title">Welcome back</h2>
-        <p class="auth-tag">Sign in to save and discover gifts</p>
+    <!-- SIGN IN -->
+    <div class="auth-screen-body" id="signin-body">
+      <label class="auth-field-label" for="auth-email" id="auth-email-label">Email or Username</label>
+      <input class="auth-pill-input" type="text" id="auth-email" placeholder="you@example.com or username" autocomplete="username" />
+
+      <label class="auth-field-label" for="auth-password">Password</label>
+      <div class="auth-password-wrap">
+        <input class="auth-pill-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" />
+        <button type="button" class="auth-eye-btn" id="auth-eye-btn" onclick="togglePasswordVisibility()" aria-label="Show password">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
       </div>
 
-      <!-- Method selection -->
-      <div id="auth-methods">
-        <button class="auth-google" onclick="signInGoogle()">
+      <div class="auth-row-between">
+        <label class="auth-remember"><input type="checkbox" id="auth-remember"> Remember me</label>
+        <span class="auth-forgot-link" onclick="forgotPassword()">Forgot Password?</span>
+      </div>
+
+      <button class="auth-pill-btn" id="auth-submit" onclick="submitEmail()">Login</button>
+
+      <div class="auth-divider">or</div>
+
+      <button class="auth-google-pill" onclick="signInGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div class="auth-msg" id="auth-msg"></div>
+    </div>
+
+    <!-- SIGN UP — choose Google or phone/email; username + birthday are collected afterward
+         by the same mandatory setup modal that runs for every sign-in method (see below). -->
+    <div class="auth-screen-body hidden" id="signup-body">
+      <div id="signup-methods">
+        <button class="auth-pill-btn" onclick="showSignupCredentials()">Use Phone or Email</button>
+        <div class="auth-divider">or</div>
+        <button class="auth-google-pill" onclick="signInGoogle()">
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -1546,56 +1591,98 @@
           </svg>
           Continue with Google
         </button>
-        <div class="auth-divider">or</div>
-        <button class="auth-option-btn" onclick="showEmailForm()">Continue with Email</button>
       </div>
 
-      <!-- Email form -->
-      <div id="auth-email-section" style="display:none">
-        <button class="auth-back" onclick="showMethods()">← Back</button>
-        <div class="auth-field">
-          <input class="t-input" type="email" id="auth-email" placeholder="Email address" />
+      <div id="signup-credentials" class="hidden">
+        <button class="auth-back-pill" style="margin-bottom:18px" onclick="showSignupMethods()">← Back</button>
+
+        <div id="su-credentials-fields">
+          <h2 class="auth-step-title">Create your account</h2>
+          <p class="auth-step-sub">Enter your phone or email, and choose a password.</p>
+          <label class="auth-field-label" for="su-identifier">Phone or Email</label>
+          <input class="auth-pill-input" type="text" id="su-identifier" placeholder="you@example.com or phone number" autocomplete="username" />
+          <label class="auth-field-label" for="su-password">Password</label>
+          <div class="auth-password-wrap">
+            <input class="auth-pill-input" type="password" id="su-password" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitSignup()" />
+            <button type="button" class="auth-eye-btn" id="su-eye-btn" onclick="toggleSuPasswordVisibility()" aria-label="Show password">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="auth-msg" id="su-msg"></div>
+          <button class="auth-pill-btn" id="su-submit" onclick="submitSignup()">Register</button>
         </div>
-        <div class="auth-field">
-          <input class="t-input" type="password" id="auth-password" placeholder="Password" />
-        </div>
-        <button class="btn-p" id="auth-submit" onclick="submitEmail()">Sign In</button>
-        <div class="auth-toggle">
-          <span id="auth-toggle-text">Don't have an account?</span>
-          <span onclick="toggleMode()"><span id="auth-toggle-link"> Sign up</span></span>
+
+        <div id="su-otp-fields" class="hidden">
+          <h2 class="auth-step-title">Enter your code</h2>
+          <p class="auth-step-sub">We texted a 6-digit code to <span id="su-otp-phone"></span>.</p>
+          <input class="auth-pill-input" type="text" id="su-otp" placeholder="123456" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')submitPhoneOtp()" />
+          <div class="auth-msg" id="su-otp-msg"></div>
+          <button class="auth-pill-btn" id="su-otp-submit" onclick="submitPhoneOtp()">Verify</button>
         </div>
       </div>
+    </div>
 
-
-<div class="auth-msg" id="auth-msg"></div>
-      <p class="auth-footer">By continuing you agree to our Terms of Service and Privacy Policy.</p>
+    <div class="auth-screen-bottom">
+      <span id="auth-toggle-text">Don't have an account?</span>
+      <span class="auth-toggle-link" onclick="toggleMode()"><span id="auth-toggle-link">Register</span></span>
     </div>
   </div>
 
-  <!-- ══ USERNAME SETUP (mandatory, first sign-in only) ══ -->
+  <!-- ══ USERNAME + BIRTHDAY SETUP (mandatory, first sign-in only — same for Google, phone, or email) ══ -->
   <div id="username-modal-overlay" class="hidden">
-    <div class="auth-modal">
-      <div class="auth-brand">
-        <span class="auth-logo">🎁</span>
-        <h2 class="auth-title">Choose a username</h2>
-        <p class="auth-tag">This is how friends find and follow you.</p>
-      </div>
-
-      <div class="auth-field">
-        <div style="position:relative">
-          <span style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:rgba(6,6,32,0.35);font-size:14px;pointer-events:none;user-select:none">@</span>
-          <input class="t-input" type="text" id="username-setup-input" placeholder="username" maxlength="20" autocomplete="off"
-            style="padding-left:28px"
-            oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9._-]/g,'')"
-            onkeydown="if(event.key==='Enter')submitUsernameSetup()" />
-        </div>
-        <p style="font-size:11px;color:rgba(6,6,32,0.4);margin-top:8px;line-height:1.5">3–20 characters: letters, numbers, periods, underscores, hyphens. Can't start or end with a symbol.</p>
-      </div>
-
-      <button class="btn-p" id="username-setup-submit" onclick="submitUsernameSetup()">Continue</button>
-      <div class="auth-msg" id="username-setup-msg"></div>
-      <div class="auth-toggle" style="margin-top:18px"><span onclick="signOut()">Sign out instead</span></div>
+    <div class="auth-screen-topbar">
+      <h1 class="auth-screen-title" id="us-title">When's your birthday?</h1>
     </div>
+
+    <div class="auth-screen-body">
+      <div class="steps" style="margin-bottom:20px">
+        <div class="step-dot active" id="us-dot-1"></div>
+        <div class="step-dot" id="us-dot-2"></div>
+        <div class="step-dot" id="us-dot-3"></div>
+      </div>
+
+      <div id="us-step-1">
+        <p class="auth-step-sub">We'll use this to personalize your experience.</p>
+        <input class="auth-pill-input" type="date" id="username-setup-birthday" onkeydown="if(event.key==='Enter')usGoStep2()" />
+        <button class="auth-pill-btn" style="margin-top:20px" onclick="usGoStep2()">Continue</button>
+      </div>
+
+      <div id="us-step-2" class="hidden">
+        <p class="auth-step-sub">This is how friends find and follow you.</p>
+        <div style="position:relative">
+          <span style="position:absolute;left:20px;top:50%;transform:translateY(-50%);color:rgba(6,6,40,0.35);font-size:14px;pointer-events:none;user-select:none">@</span>
+          <input class="auth-pill-input" style="padding-left:34px" type="text" id="username-setup-input" placeholder="username" maxlength="20" autocomplete="off"
+            oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9._-]/g,'')"
+            onkeydown="if(event.key==='Enter')usGoStep3()" />
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5">3–20 characters: letters, numbers, periods, underscores, hyphens. Can't start or end with a symbol.</p>
+        <div class="auth-step-btn-row">
+          <button class="auth-back-pill" onclick="usGoStep1()">Back</button>
+          <button class="auth-pill-btn" id="us-step2-continue" onclick="usGoStep3()">Continue</button>
+        </div>
+      </div>
+
+      <div id="us-step-3" class="hidden">
+        <p class="auth-step-sub">Add a profile picture — totally optional, you can always add one later.</p>
+        <input type="file" id="us-photo-input" accept="image/*" style="display:none" onchange="handleUsernameSetupPhoto(event)">
+        <div style="display:flex;justify-content:center;margin:6px 0 26px">
+          <div class="profile-ph-wrap" onclick="triggerUsernameSetupPhotoPick()">
+            <div class="profile-ph-circle" id="us-photo-circle" style="background:#1A6FFF">
+              <span id="us-photo-initial" style="color:#fff;font-size:32px;font-weight:700">?</span>
+            </div>
+            <div class="profile-ph-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          </div>
+        </div>
+        <div class="auth-step-btn-row">
+          <button class="auth-back-pill" onclick="usGoStep2()">Back</button>
+          <button class="auth-pill-btn" id="username-setup-submit" onclick="finishUsernameSetup()">Finish</button>
+        </div>
+      </div>
+
+      <div class="auth-msg" id="username-setup-msg"></div>
+    </div>
+
+    <div class="auth-screen-bottom"><span class="auth-toggle-link" onclick="signOut()">Sign out instead</span></div>
   </div>
 
   <!-- ══ MAIN APP ══ -->
@@ -1636,6 +1723,9 @@
       <!-- ── VIEW: Gift Dating ── -->
       <div class="app-view active" id="view-dating">
 
+        <!-- Brand mark — rendered in the same Optimer Bold 3D font as the landing page text -->
+        <div id="discover-brand"><canvas id="brand-canvas"></canvas></div>
+
         <!-- Setup -->
         <div id="setup-wrapper">
           <div class="steps">
@@ -1652,14 +1742,14 @@
                 <p>Every gift is better with context.</p>
               </div>
             </div>
-            <div class="opt-grid">
-              <button class="opt-btn" onclick="selectOccasion('Birthday')">Birthday</button>
-              <button class="opt-btn" onclick="selectOccasion('Holiday')">Holiday</button>
-              <button class="opt-btn" onclick="selectOccasion('Anniversary')">Anniversary</button>
-              <button class="opt-btn" onclick="selectOccasion('Graduation')">Graduation</button>
-              <button class="opt-btn" onclick="selectOccasion('Wedding')">Wedding</button>
-              <button class="opt-btn" onclick="selectOccasion('Just Because')">Just Because</button>
+            <div style="position:relative">
+              <input class="t-input" type="text" id="occasion-input" placeholder="e.g. Birthday" maxlength="60" autocomplete="off"
+                oninput="occasionInput(this.value)" onfocus="occasionInput(this.value)" onblur="setTimeout(closeOccasionSuggest,150)"
+                onkeydown="if(event.key==='Enter')confirmOccasion()" />
+              <div id="occasion-suggest" class="rm-suggest hidden" style="max-height:260px;overflow-y:auto"></div>
             </div>
+            <p class="err" id="err-occasion">Please choose or type an occasion.</p>
+            <button class="btn-p" onclick="confirmOccasion()">Continue →</button>
           </div>
           <div class="setup-card hidden" id="step-2">
             <div class="card-hd">
@@ -1669,7 +1759,7 @@
                 <p>Describe them and we'll tailor every pick.</p>
               </div>
             </div>
-            <input class="t-input" type="text" id="recipient" placeholder="e.g. my mom, best friend, coworker…" maxlength="120" autocomplete="off" />
+            <input class="t-input" type="text" id="recipient" placeholder="e.g. Mom" maxlength="120" autocomplete="off" />
             <p class="err" id="err-rec">Please describe who you're shopping for.</p>
             <div class="setup-btn-row">
               <button class="btn-back" onclick="goBack1()">← Back</button>
@@ -1812,7 +1902,7 @@
       </div>
       <div class="rm-field">
         <label>Who gave it</label>
-        <input class="t-input" type="text" id="rm-from" placeholder="e.g. Mom, partner, coworker…" />
+        <input class="t-input" type="text" id="rm-from" placeholder="e.g. Mom, partner, coworker…" autocomplete="off" />
       </div>
       <div class="rm-field">
         <label>Tags</label>
@@ -1863,6 +1953,18 @@
     </div>
   </div>
 
+  <!-- ══ FOLLOWERS / FOLLOWING MODAL ══ -->
+  <div id="follow-modal-overlay" class="hidden">
+    <div class="rank-modal">
+      <button class="rank-modal-close" onclick="closeFollowModal()">✕</button>
+      <div class="profiles-tabs" style="margin-bottom:18px">
+        <button class="profiles-tab" id="follow-tab-followers" onclick="setFollowModalTab('followers')">Followers</button>
+        <button class="profiles-tab" id="follow-tab-following" onclick="setFollowModalTab('following')">Following</button>
+      </div>
+      <div id="follow-modal-body"></div>
+    </div>
+  </div>
+
   </div><!-- #app -->
 
   <script>
@@ -1884,6 +1986,7 @@
     };
 
     let authMode = 'signin';
+    let pendingPhone = ''; // phone awaiting OTP verification during phone sign-up
 
     /* ── INIT ── */
     function hideLoader() { $('loading-screen').classList.add('hidden'); }
@@ -1901,48 +2004,87 @@
     let dbLoaded = false;
     let landingPassed = false;
 
+    // Google's OAuth redirect lands back on this same URL with ?code=... (or #access_token=...
+    // for the older implicit flow) — that's a full page reload, so without this check it would
+    // show the landing screen again right after the user just finished signing in with Google.
+    const isOAuthReturn = /[?&]code=/.test(window.location.search) || /access_token=/.test(window.location.hash);
+    if (isOAuthReturn) window.history.replaceState(null, '', window.location.pathname);
+
     sb.auth.getSession().then(({ data: { session } }) => {
       hideLoader();
-      startSphere(); // always show landing first
-      if (session && !dbLoaded) { dbLoaded = true; loadSavedFromDb(); }
+      if (session && isOAuthReturn) {
+        // Just completed "Continue with Google" — skip the landing screen, go straight in.
+        landingPassed = true;
+        if (!dbLoaded) { dbLoaded = true; loadSavedFromDb(); }
+        showApp();
+      } else {
+        startSphere(); // every other fresh load shows the landing screen — tapping it checks the session
+        if (session && !dbLoaded) { dbLoaded = true; loadSavedFromDb(); }
+      }
     }).catch(() => { hideLoader(); startSphere(); });
 
     sb.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && landingPassed) { hideAuthModal(); showApp(); if (!dbLoaded) { dbLoaded = true; loadSavedFromDb(); } }
-      if (event === 'SIGNED_OUT') { dbLoaded = false; resetAll(); landingPassed = true; $('app').classList.add('hidden'); hideAuthModal(); hideUsernameSetup(); showAuthModal(); }
+      if (event === 'SIGNED_IN' && landingPassed) { hideAuthScreen(); showApp(); if (!dbLoaded) { dbLoaded = true; loadSavedFromDb(); } }
+      if (event === 'SIGNED_OUT') {
+        dbLoaded = false; resetAll(); landingPassed = false;
+        localStorage.removeItem(PROFILE_KEY); localStorage.removeItem(RANK_KEY); localStorage.removeItem(LOCAL_CACHE_USER_KEY);
+        $('app').classList.add('hidden'); hideAuthScreen(); hideUsernameSetup(); startSphere();
+      }
     });
 
-    function showAuthModal() {
-      const ov = $('auth-modal-overlay');
-      ov.classList.remove('hidden');
-      showMethods();
-      requestAnimationFrame(() => ov.classList.add('visible'));
+    function showAuthScreen() {
+      $('auth-screen').classList.remove('hidden');
+      showLoginMode();
     }
-    function hideAuthModal() {
-      const ov = $('auth-modal-overlay');
-      ov.classList.remove('visible');
-      setTimeout(() => ov.classList.add('hidden'), 240);
+    function hideAuthScreen() {
+      $('auth-screen').classList.add('hidden');
     }
 
-    function showAuth() {
+    function backToLanding() {
       $('app').classList.add('hidden');
-      hideAuthModal();
-      // Return to landing page
+      hideAuthScreen();
       if ($('landing').classList.contains('hidden')) {
         $('landing').classList.remove('hidden');
         startSphere();
       }
     }
+
+    const LOCAL_CACHE_USER_KEY = 'gf_cache_user_id';
+
+    // Local profile/rankings caches aren't scoped per-account — if a different user just
+    // signed in on this browser, wipe the previous account's cached data and re-hydrate this
+    // account's own profile from Supabase (the source of truth for profile_data). Personal
+    // ratings' full per-dimension breakdown only ever lived locally (only the aggregate score
+    // is mirrored to community_ratings), so there's no way to recover those on a switch —
+    // starting empty for a "new" account on this browser is correct, not a bug.
+    async function syncLocalCacheToUser(userId) {
+      if (localStorage.getItem(LOCAL_CACHE_USER_KEY) === userId) return;
+
+      localStorage.removeItem(PROFILE_KEY);
+      localStorage.removeItem(RANK_KEY);
+      localStorage.setItem(LOCAL_CACHE_USER_KEY, userId);
+
+      const { data } = await sb.from('user_profiles').select('profile_data').eq('user_id', userId).maybeSingle();
+      if (data?.profile_data && Object.keys(data.profile_data).length) {
+        saveMyProfileLocal(data.profile_data);
+      }
+    }
+
     async function showApp() {
       const { data: { user } } = await sb.auth.getUser();
       if (!user) return;
       stopSphere();
       $('landing').classList.add('hidden');
-      hideAuthModal();
+      hideAuthScreen();
+
+      // Local profile/rankings caches aren't scoped per-account by default — if a different
+      // user just signed in on this browser, this wipes the previous account's cached data
+      // before anything below reads it.
+      await syncLocalCacheToUser(user.id);
 
       // New accounts (and any pre-existing account without one) must pick a username before entering the app.
       const hasUsername = await ensureUsername(user);
-      if (!hasUsername) return; // username-modal-overlay is now up; submitUsernameSetup() re-calls showApp()
+      if (!hasUsername) return; // username-modal-overlay is now up; finishUsernameSetup() re-calls showApp()
 
       $('app').classList.remove('hidden');
       const label = user.email || user.user_metadata?.full_name || 'Signed in';
@@ -1989,25 +2131,80 @@
     }
 
     let usernameSetupUserId = null;
+    let usernameSetupPhoto = null; // data URL, set only if picked in step 3 — stays null (no photo) otherwise
 
-    // Returns true if the user already has a username on file; otherwise shows the mandatory setup modal and returns false.
+    // Returns true if the user already has a username on file; otherwise shows the mandatory
+    // setup wizard (birthday → username → optional photo) and returns false. Runs after every
+    // fresh sign-in — Google, phone, or email — so this is the one shared place onboarding happens.
+    // Bio is never asked here and stays blank; a photo is offered but entirely optional.
     async function ensureUsername(user) {
       const { data } = await sb.from('user_profiles').select('username').eq('user_id', user.id).maybeSingle();
       if (data && data.username) return true;
+
       usernameSetupUserId = user.id;
+      usernameSetupPhoto = null;
       $('username-setup-input').value = '';
+      $('username-setup-birthday').value = '';
+      $('us-photo-circle').style.background = '#1A6FFF';
+      $('us-photo-circle').innerHTML = '<span id="us-photo-initial" style="color:#fff;font-size:32px;font-weight:700">?</span>';
       hideUsernameSetupMsg();
-      const ov = $('username-modal-overlay');
-      ov.classList.remove('hidden');
-      requestAnimationFrame(() => ov.classList.add('visible'));
-      setTimeout(() => $('username-setup-input').focus(), 100);
+      usGoStep1();
+      $('username-modal-overlay').classList.remove('hidden');
+      setTimeout(() => $('username-setup-birthday').focus(), 100);
       return false;
     }
 
+    function usShowStep(n) { [1,2,3].forEach(i => $('us-step-'+i).classList.toggle('hidden', i !== n)); }
+    function usSetDots(n)  { [1,2,3].forEach(i => $('us-dot-'+i)?.classList.toggle('active', i <= n)); }
+
+    function usGoStep1() {
+      $('us-title').textContent = "When's your birthday?";
+      hideUsernameSetupMsg();
+      usShowStep(1); usSetDots(1);
+    }
+
+    function usGoStep2() {
+      const birthday = $('username-setup-birthday').value;
+      if (!birthday) { showUsernameSetupMsg('Please enter your birthday.'); return; }
+      if (new Date(birthday) > new Date()) { showUsernameSetupMsg("That date hasn't happened yet."); return; }
+      hideUsernameSetupMsg();
+      $('us-title').textContent = 'Choose a username';
+      usShowStep(2); usSetDots(2);
+      setTimeout(() => $('username-setup-input').focus(), 50);
+    }
+
+    async function usGoStep3() {
+      const v = validateUsername($('username-setup-input').value);
+      if (!v.ok) { showUsernameSetupMsg(v.error); return; }
+
+      const btn = $('us-step2-continue');
+      btn.disabled = true; btn.textContent = 'Checking…';
+      const { data: existing } = await sb.from('user_profiles').select('user_id').eq('username', v.normalized).maybeSingle();
+      btn.disabled = false; btn.textContent = 'Continue';
+      if (existing && existing.user_id !== usernameSetupUserId) {
+        showUsernameSetupMsg('That username is taken.');
+        return;
+      }
+
+      hideUsernameSetupMsg();
+      $('us-title').textContent = 'Add a profile picture';
+      usShowStep(3); usSetDots(3);
+    }
+
+    function triggerUsernameSetupPhotoPick() { $('us-photo-input').click(); }
+
+    function handleUsernameSetupPhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      cropImageToSquareDataUrl(file).then(dataUrl => {
+        usernameSetupPhoto = dataUrl;
+        $('us-photo-circle').style.background = 'none';
+        $('us-photo-circle').innerHTML = `<img src="${dataUrl}" alt="">`;
+      });
+    }
+
     function hideUsernameSetup() {
-      const ov = $('username-modal-overlay');
-      ov.classList.remove('visible');
-      setTimeout(() => ov.classList.add('hidden'), 240);
+      $('username-modal-overlay').classList.add('hidden');
     }
 
     function showUsernameSetupMsg(msg) {
@@ -2016,22 +2213,30 @@
     }
     function hideUsernameSetupMsg() { $('username-setup-msg').style.display = 'none'; }
 
-    async function submitUsernameSetup() {
+    // Final step — the actual account write. Bio is intentionally never set here (stays '');
+    // photo is only set if usernameSetupPhoto was picked in step 3.
+    async function finishUsernameSetup() {
       const v = validateUsername($('username-setup-input').value);
-      if (!v.ok) { showUsernameSetupMsg(v.error); return; }
+      if (!v.ok) { showUsernameSetupMsg(v.error); usGoStep2(); return; }
+
+      const birthday = $('username-setup-birthday').value;
 
       const btn = $('username-setup-submit');
-      btn.disabled = true; btn.textContent = 'Checking…';
+      btn.disabled = true; btn.textContent = 'Saving…';
 
+      // Re-check availability — someone could have taken it between step 2 and now.
       const { data: existing } = await sb.from('user_profiles').select('user_id').eq('username', v.normalized).maybeSingle();
       if (existing && existing.user_id !== usernameSetupUserId) {
-        btn.disabled = false; btn.textContent = 'Continue';
+        btn.disabled = false; btn.textContent = 'Finish';
         showUsernameSetupMsg('That username is taken.');
+        usGoStep2();
         return;
       }
 
       const p = loadMyProfile();
       p.username = v.normalized;
+      p.birthday = birthday;
+      if (usernameSetupPhoto) p.photo = usernameSetupPhoto;
       saveMyProfileLocal(p);
       const { error } = await sb.from('user_profiles').upsert({
         user_id: usernameSetupUserId,
@@ -2041,7 +2246,7 @@
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
 
-      btn.disabled = false; btn.textContent = 'Continue';
+      btn.disabled = false; btn.textContent = 'Finish';
       if (error) {
         showUsernameSetupMsg(error.code === '23505' ? 'That username is taken.' : 'Something went wrong — try again.');
         return;
@@ -2064,9 +2269,25 @@
 
     async function startApp() {
       landingPassed = true;
+      requestNotificationPermission();
       const { data: { user } } = await sb.auth.getUser();
       if (user) { showApp(); }
-      else { showAuthModal(); }
+      else { showAuthScreen(); }
+    }
+
+    // Ask on first open (the landing tap is a real user gesture, which Safari cares about).
+    // On iPhone this dialog only ever appears if the site has been added to the Home Screen
+    // (iOS 16.4+) — a regular Safari tab silently ignores it, since iOS doesn't support the
+    // Notifications API outside an installed web app.
+    function requestNotificationPermission() {
+      if (!('Notification' in window) || Notification.permission !== 'default') return;
+      Notification.requestPermission();
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err.message));
+      });
     }
 
     /* ── AUTH ── */
@@ -2078,40 +2299,160 @@
       if (error) showMsg(error.message, 'error');
     }
 
+    // Sign-in only — sign-up now goes through the wizard (submitSignup()).
     async function submitEmail() {
-      const email = $('auth-email').value.trim();
-      const pass  = $('auth-password').value;
-      if (!email || !pass) { showMsg('Please fill in both fields.', 'error'); return; }
+      const identifier = $('auth-email').value.trim();
+      const pass = $('auth-password').value;
+      if (!identifier || !pass) { showMsg('Please fill in both fields.', 'error'); return; }
+
       $('auth-submit').disabled = true;
       $('auth-submit').textContent = 'Please wait…';
       let error;
-      if (authMode === 'signin') {
-        ({ error } = await sb.auth.signInWithPassword({ email, password: pass }));
+
+      if (identifier.includes('@')) {
+        ({ error } = await sb.auth.signInWithPassword({ email: identifier, password: pass }));
       } else {
-        ({ error } = await sb.auth.signUp({ email, password: pass }));
-        if (!error) { showMsg('Check your email to confirm your account!', 'success'); $('auth-submit').textContent = 'Sign Up'; $('auth-submit').disabled = false; return; }
+        // Username login — resolved server-side so the browser never sees the real email.
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identifier, password: pass }),
+          });
+          const data = await res.json();
+          if (!res.ok) { error = { message: data.error || 'Invalid login credentials.' }; }
+          else { ({ error } = await sb.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token })); }
+        } catch {
+          error = { message: 'Could not reach the server. Please try again.' };
+        }
       }
       if (error) showMsg(error.message, 'error');
-      $('auth-submit').textContent = authMode === 'signin' ? 'Sign In' : 'Sign Up';
+      $('auth-submit').textContent = 'Login';
       $('auth-submit').disabled = false;
     }
 
     function toggleMode() {
       authMode = authMode === 'signin' ? 'signup' : 'signin';
       const isSignup = authMode === 'signup';
-      $('auth-submit').textContent = isSignup ? 'Sign Up' : 'Sign In';
       $('auth-toggle-text').textContent = isSignup ? 'Already have an account?' : "Don't have an account?";
-      $('auth-toggle-link').textContent = isSignup ? ' Sign in' : ' Sign up';
-      $('auth-title').textContent = isSignup ? 'Create account' : 'Welcome back';
+      $('auth-toggle-link').textContent = isSignup ? 'Login' : 'Register';
+      $('auth-screen-title').textContent = isSignup ? 'Register' : 'Login';
+      $('signin-body').classList.toggle('hidden', isSignup);
+      $('signup-body').classList.toggle('hidden', !isSignup);
+      if (isSignup) resetSignupMethods();
       hideMsg();
     }
 
-    // Close modal on backdrop click or Escape
-    $('auth-modal-overlay').addEventListener('click', e => {
-      if (e.target === $('auth-modal-overlay')) hideAuthModal();
-    });
+    /* ── SIGN-UP: choose Google or phone/email; username + birthday + optional photo happen
+       afterward via the shared mandatory setup wizard (ensureUsername/finishUsernameSetup above),
+       since that's the only point common to every sign-up method including Google. ── */
+    function resetSignupMethods() {
+      $('signup-methods').classList.remove('hidden');
+      $('signup-credentials').classList.add('hidden');
+      $('su-credentials-fields').classList.remove('hidden');
+      $('su-otp-fields').classList.add('hidden');
+      $('su-identifier').value = '';
+      $('su-password').value = '';
+      $('su-otp').value = '';
+      pendingPhone = '';
+      hideSuMsg();
+    }
+
+    function showSignupCredentials() {
+      $('signup-methods').classList.add('hidden');
+      $('signup-credentials').classList.remove('hidden');
+      setTimeout(() => $('su-identifier').focus(), 50);
+    }
+    function showSignupMethods() {
+      $('signup-credentials').classList.add('hidden');
+      $('signup-methods').classList.remove('hidden');
+    }
+
+    function toggleSuPasswordVisibility() {
+      const inp = $('su-password');
+      const showing = inp.type === 'password';
+      inp.type = showing ? 'text' : 'password';
+      $('su-eye-btn').innerHTML = showing
+        ? `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.4 18.4 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+        : `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    }
+
+    function showSuMsg(msg, type) {
+      const el = $('su-msg');
+      el.textContent = msg; el.className = 'auth-msg ' + type; el.style.display = 'block';
+    }
+    function hideSuMsg() { $('su-msg').style.display = 'none'; }
+
+    async function submitSignup() {
+      const identifier = $('su-identifier').value.trim();
+      const pass = $('su-password').value;
+      if (!identifier || !pass) { showSuMsg('Please fill in both fields.', 'error'); return; }
+
+      const isEmail = identifier.includes('@');
+      const cleanedPhone = identifier.replace(/[\s()-]/g, '');
+      const isPhone = !isEmail && /^\+?[0-9]{7,15}$/.test(cleanedPhone);
+      if (!isEmail && !isPhone) { showSuMsg('Enter a valid email or phone number.', 'error'); return; }
+
+      $('su-submit').disabled = true;
+      $('su-submit').textContent = 'Please wait…';
+
+      const { data, error } = await sb.auth.signUp(
+        isEmail ? { email: identifier, password: pass } : { phone: cleanedPhone, password: pass }
+      );
+
+      if (error) {
+        showSuMsg(error.message, 'error');
+        $('su-submit').disabled = false; $('su-submit').textContent = 'Register';
+        return;
+      }
+
+      if (data.session) { showApp(); return; } // confirmation disabled — straight in; ensureUsername() asks for username+birthday
+
+      if (isPhone) {
+        pendingPhone = cleanedPhone;
+        $('su-otp-phone').textContent = cleanedPhone;
+        $('su-credentials-fields').classList.add('hidden');
+        $('su-otp-fields').classList.remove('hidden');
+        setTimeout(() => $('su-otp').focus(), 50);
+      } else {
+        showSuMsg('Check your email to confirm your account!', 'success');
+      }
+      $('su-submit').textContent = 'Register';
+      $('su-submit').disabled = false;
+    }
+
+    async function submitPhoneOtp() {
+      const code = $('su-otp').value.trim();
+      if (!code) return;
+      const btn = $('su-otp-submit');
+      btn.disabled = true; btn.textContent = 'Verifying…';
+      const { data, error } = await sb.auth.verifyOtp({ phone: pendingPhone, token: code, type: 'sms' });
+      btn.disabled = false; btn.textContent = 'Verify';
+      const el = $('su-otp-msg');
+      if (error) { el.textContent = error.message; el.className = 'auth-msg error'; el.style.display = 'block'; return; }
+      if (data.session) showApp(); // ensureUsername() asks for username+birthday from here
+    }
+
+    function togglePasswordVisibility() {
+      const inp = $('auth-password');
+      const showing = inp.type === 'password';
+      inp.type = showing ? 'text' : 'password';
+      $('auth-eye-btn').innerHTML = showing
+        ? `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.4 18.4 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+        : `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    }
+
+    async function forgotPassword() {
+      const email = $('auth-email').value.trim();
+      if (!email) { showMsg('Enter your email above first, then tap Forgot Password.', 'error'); return; }
+      if (!email.includes('@')) { showMsg('Enter your email address (not username) to reset your password.', 'error'); return; }
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+      if (error) showMsg(error.message, 'error');
+      else showMsg('Check your email for a password reset link.', 'success');
+    }
+
+    // Back arrow is the way out now; Escape mirrors it for desktop testing.
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !$('auth-modal-overlay').classList.contains('hidden')) hideAuthModal();
+      if (e.key === 'Escape' && !$('auth-screen').classList.contains('hidden')) backToLanding();
     });
 
     async function signOut() {
@@ -2125,23 +2466,15 @@
     }
     function hideMsg() { $('auth-msg').style.display = 'none'; }
 
-    function showMethods() {
-      $('auth-methods').style.display = '';
-      $('auth-email-section').style.display = 'none';
-      $('auth-title').textContent = 'Welcome';
+    function showLoginMode() {
       authMode = 'signin';
-      $('auth-submit').textContent = 'Sign In';
+      $('auth-screen-title').textContent = 'Login';
+      $('auth-submit').textContent = 'Login';
       $('auth-toggle-text').textContent = "Don't have an account?";
-      $('auth-toggle-link').textContent = ' Sign up';
+      $('auth-toggle-link').textContent = 'Register';
+      $('signin-body').classList.remove('hidden');
+      $('signup-body').classList.add('hidden');
       hideMsg();
-    }
-
-    function showEmailForm() {
-      $('auth-methods').style.display = 'none';
-      $('auth-email-section').style.display = 'block';
-      $('auth-title').textContent = authMode === 'signup' ? 'Create account' : 'Welcome back';
-      hideMsg();
-      setTimeout(() => $('auth-email').focus(), 50);
     }
 
     $('auth-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('auth-password').focus(); });
@@ -2189,10 +2522,96 @@
     /* ── STEP NAV ── */
     function setDots(n) { [1,2,3,4].forEach(i => $('sd-'+i)?.classList.toggle('active', i <= n)); }
 
-    function selectOccasion(occ) {
-      S.occasion = occ;
-      document.querySelectorAll('.opt-btn').forEach(b => b.classList.toggle('selected', b.textContent.trim() === occ));
-      setTimeout(() => { $('step-1').classList.add('hidden'); $('step-2').classList.remove('hidden'); setDots(2); }, 280);
+    /* ── OCCASION AUTOCOMPLETE ── */
+    const OCCASION_TAGS = [...new Set([
+      // ── Holidays ──
+      "New Year's Day",'Lunar New Year','Chinese New Year',"Valentine's Day","Presidents' Day",
+      "St. Patrick's Day",'Easter','Passover','Eid al-Fitr',"Mother's Day",'Memorial Day',"Father's Day",
+      'Juneteenth','Independence Day (4th of July)','Canada Day','Labor Day','Rosh Hashanah','Yom Kippur',
+      'Halloween','Día de los Muertos','Veterans Day','Thanksgiving','Hanukkah','Christmas','Kwanzaa',
+      'Boxing Day',"New Year's Eve",
+      // ── Birthdays & Age Milestones ──
+      'Birthday','First Birthday','Sweet 16','Quinceañera','18th Birthday','21st Birthday','30th Birthday',
+      '40th Birthday','50th Birthday','60th Birthday','70th Birthday','80th Birthday','90th Birthday','100th Birthday',
+      // ── Romance ──
+      'First Date','Dating Anniversary','Anniversary','First Anniversary','Proposal','Engagement','Wedding',
+      'Bridal Shower','Bachelor Party','Bachelorette Party','Honeymoon','Vow Renewal','Just Because',
+      // ── Family ──
+      'Baby Shower','Gender Reveal','Pregnancy Announcement','New Baby',"Baby's First Christmas",'Baptism',
+      'Christening','Naming Ceremony','First Communion','Confirmation','Bar Mitzvah','Bat Mitzvah',
+      // ── School & Education ──
+      'First Day of School','Last Day of School','Graduation','High School Graduation','College Graduation',
+      'Graduate School Graduation','Acceptance Celebration','Study Abroad','Back to School','Teacher Appreciation',
+      'Graduation Party',
+      // ── Career ──
+      'New Job','Job Promotion','Work Anniversary','Retirement','Farewell','New Business','Business Launch',
+      'Internship','First Day at Work','Professional Achievement',
+      // ── Home & Life Events ──
+      'Housewarming','New Home','Moving Away','Welcome Home','Home Renovation','New Apartment','First Home',
+      // ── Achievement & Celebration ──
+      'Congratulations','Award','Championship','Competition Win','Personal Achievement','Graduation Achievement',
+      'Milestone Celebration','Goal Reached','Promotion Celebration',
+      // ── Appreciation ──
+      'Thank You','Host Gift','Dinner Party','Appreciation','Mentor Gift','Teacher Gift','Coach Gift',
+      'Neighbor Gift','Volunteer Appreciation','Employee Appreciation',
+      // ── Health & Support ──
+      'Get Well Soon','Surgery Recovery','Recovery Milestone','Thinking of You','Sympathy','Funeral','Memorial',
+      'Condolence','Care Package','Encouragement',
+      // ── Friendship ──
+      'Best Friend','Friendship Anniversary','Reunion','Going Away','Welcome Back','Long Distance Friend','Roommate Gift',
+      // ── Seasonal ──
+      'Spring','Summer','Fall','Winter','Vacation','Beach Trip','Camping Trip','Road Trip','Ski Trip',
+      // ── Parties & Gift Exchanges ──
+      'Secret Santa','White Elephant','Yankee Swap','Gift Exchange','Stocking Stuffer','Party Favor',
+      'Door Prize','Raffle Prize',
+      // ── Pet ──
+      'New Pet','Pet Birthday','Pet Adoption','Pet Memorial',
+      // ── Religious ──
+      'Ramadan','Eid al-Adha','Diwali','Holi','Vaisakhi',
+      // ── Travel ──
+      'Bon Voyage','Moving Abroad','Travel Send-Off',
+      // ── Miscellaneous ──
+      'Random Surprise','Self Gift','For Myself','Bucket List','Celebration','Good Luck','Sorry','Apology','Miss You',
+      'Good Bye','Welcome','Date Night',
+    ])];
+
+    let _occasionMatches = [];
+
+    function occasionInput(val) {
+      const q = val.trim().toLowerCase();
+      if (!q) { closeOccasionSuggest(); return; }
+      const box = $('occasion-suggest');
+      const matches = OCCASION_TAGS.filter(n => n.toLowerCase().includes(q)).slice(0, 8);
+      _occasionMatches = matches;
+      if (!matches.length) { closeOccasionSuggest(); return; }
+      box.innerHTML = matches.map((n, i) => {
+        const idx = n.toLowerCase().indexOf(q);
+        const hi = esc(n.slice(0, idx)) + '<em>' + esc(n.slice(idx, idx + q.length)) + '</em>' + esc(n.slice(idx + q.length));
+        return `<div class="rm-suggest-item" onmousedown="pickOccasion(${i})">${hi}</div>`;
+      }).join('');
+      box.classList.remove('hidden');
+    }
+
+    function pickOccasion(i) {
+      const name = _occasionMatches[i];
+      if (name == null) return;
+      $('occasion-input').value = name;
+      closeOccasionSuggest();
+      confirmOccasion(name);
+    }
+
+    function closeOccasionSuggest() {
+      const box = $('occasion-suggest');
+      if (box) box.classList.add('hidden');
+    }
+
+    function confirmOccasion(nameOverride) {
+      const val = (nameOverride != null ? nameOverride : $('occasion-input').value).trim();
+      if (!val) { $('err-occasion').style.display = 'block'; return; }
+      $('err-occasion').style.display = 'none';
+      S.occasion = val;
+      closeOccasionSuggest();
+      setTimeout(() => { $('step-1').classList.add('hidden'); $('step-2').classList.remove('hidden'); setDots(2); }, 150);
     }
 
     function goStep3() {
@@ -2409,7 +2828,9 @@
       $('card-screen').classList.add('hidden');
       $('setup-wrapper').classList.remove('hidden');
       [1,2,3].forEach(i => $('step-'+i)?.classList.toggle('hidden', i !== 1));
-      $('recipient').value = ''; updateStats(); setDots(1);
+      $('recipient').value = '';
+      $('occasion-input').value = ''; $('err-occasion').style.display = 'none';
+      updateStats(); setDots(1);
       const stepHd  = document.querySelector('#step-3 .card-hd-text h2');
       const stepSub = document.querySelector('#step-3 .card-hd-text p');
       if (stepHd)  stepHd.textContent  = "What's your budget?";
@@ -2440,7 +2861,7 @@
       document.querySelectorAll(`.sb-item[onclick="switchView('${name}')"]`).forEach(b => b.classList.add('active'));
       if (name === 'rankings')  renderRankingsView();
       if (name === 'search')    renderSearchView();
-      if (name === 'myprofile') renderMyProfileView();
+      if (name === 'myprofile') { profileEditMode = false; renderMyProfileView(); }
     }
 
     /* ── GIFT RANKINGS ── */
@@ -2735,6 +3156,10 @@
       if (e.target === $('rank-modal-overlay')) closeRankModal();
     });
 
+    $('follow-modal-overlay').addEventListener('click', e => {
+      if (e.target === $('follow-modal-overlay')) closeFollowModal();
+    });
+
     /* ── RANKINGS VIEW (Mine / Friends / Global) ── */
     let rankingsSubView = 'mine';
     let rankActiveTag = 'All';
@@ -2851,9 +3276,9 @@
           <button class="profiles-tab${rankingsSubView==='friends'?' active':''}" onclick="setRankingsSubView('friends')">Friends</button>
           <button class="profiles-tab${rankingsSubView==='global'?' active':''}" onclick="setRankingsSubView('global')">Global</button>
         </div>
-        <div class="rankings-toolbar">
+        ${rankingsSubView === 'mine' ? `<div class="rankings-toolbar">
           <button class="add-gift-btn" onclick="openRankModal()">+ Add Gift</button>
-        </div>
+        </div>` : ''}
         <div id="rankings-content"></div>`;
       if (rankingsSubView === 'mine') renderMyRankingsContent();
       else renderAggregateRankingsContent(rankingsSubView);
@@ -3044,6 +3469,7 @@
 
     const AVATAR_COLORS = ['#1A6FFF','#FF6B6B','#F5A623','#22C55E','#A855F7','#EC4899','#0EA5E9','#F97316'];
     let profileColorIdx = 0;
+    let profileEditMode = false; // gates every editable control on the profile page (tags, wishlist, photo, header text) — off by default so you see what other users see
 
     function loadMyProfile() {
       try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || blankProfile(); }
@@ -3055,48 +3481,53 @@
     function saveMyProfileLocal(p) { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }
 
     /* ── FOLLOWS (Supabase-backed) ──
-       Who you follow is a real relationship in the `follows` table (see schema.sql),
-       not a local list — that's what lets other people find and follow you by username. */
-    let _followingCache = [];   // last-fetched list of people the signed-in user follows
+       Followers/following are real relationships in the `follows` table (see schema.sql),
+       not a local list — that's what lets other people find and follow you by username.
+       The actual lists are lazy-loaded into the follow modal (see below) rather than kept
+       around on the profile page — only the counts are needed there. */
     let _followerCount  = 0;
     let _followingCount = 0;
 
-    async function loadFollowing(userId) {
+    // direction: 'following' -> people userId follows; 'followers' -> people who follow userId
+    async function loadFollowEdge(userId, direction) {
+      const idCol     = direction === 'following' ? 'followee_id' : 'follower_id';
+      const filterCol = direction === 'following' ? 'follower_id' : 'followee_id';
       const { data: rows } = await sb.from('follows')
-        .select('followee_id, created_at')
-        .eq('follower_id', userId)
+        .select(`${idCol}, created_at`)
+        .eq(filterCol, userId)
         .order('created_at', { ascending: false });
       if (!rows || !rows.length) return [];
-      const ids = rows.map(r => r.followee_id);
+      const ids = rows.map(r => r[idCol]);
       const { data: profiles } = await sb.from('user_profiles')
         .select('user_id, username, display_name, profile_data')
         .in('user_id', ids);
       const byId = new Map((profiles || []).map(pr => [pr.user_id, pr]));
       return rows.map(r => {
-        const pr = byId.get(r.followee_id);
+        const otherId = r[idCol];
+        const pr = byId.get(otherId);
         const profile = (pr?.profile_data && Object.keys(pr.profile_data).length)
           ? pr.profile_data
           : { name: pr?.display_name || 'User', color: '#1A6FFF', brands: [], interests: [], wishlist: [], dontWant: [] };
-        return { userId: r.followee_id, username: pr?.username || '', addedAt: new Date(r.created_at).getTime(), profile };
+        return { userId: otherId, username: pr?.username || '', addedAt: new Date(r.created_at).getTime(), profile };
       });
     }
+    async function loadFollowing(userId) { return loadFollowEdge(userId, 'following'); }
+    async function loadFollowers(userId) { return loadFollowEdge(userId, 'followers'); }
 
-    // Cheap re-render using cached follow data — for edits (tags, wishlist, bio) that don't touch follows.
+    // Cheap re-render using cached local profile data — for edits (tags, wishlist, bio) that don't touch follows.
     function refreshMyProfile() { $('myprofile-body').innerHTML = renderMyProfile(); }
 
-    // Full refresh — refetches follow counts + following list. Use on view entry and after follow/unfollow.
+    // Full refresh — refetches follow counts. Use on view entry and after follow/unfollow.
     async function renderMyProfileView() {
       $('myprofile-body').innerHTML = renderMyProfile();
       const { data: { user } } = await sb.auth.getUser();
       if (!user) return;
-      const [followersRes, followingRes, following] = await Promise.all([
+      const [followersRes, followingRes] = await Promise.all([
         sb.from('follows').select('follower_id', { count: 'exact', head: true }).eq('followee_id', user.id),
         sb.from('follows').select('followee_id', { count: 'exact', head: true }).eq('follower_id', user.id),
-        loadFollowing(user.id),
       ]);
       _followerCount  = followersRes.count  || 0;
       _followingCount = followingRes.count || 0;
-      _followingCache = following;
       $('myprofile-body').innerHTML = renderMyProfile();
     }
 
@@ -3151,58 +3582,84 @@
     /* ── MY PROFILE RENDER ── */
     function renderMyProfile() {
       const p = loadMyProfile();
+      const editing = profileEditMode;
 
       const tags = (arr, cat, cls='') => arr.map((t,i) =>
-        `<span class="tag-pill${cls}">${esc(t)}<button class="tag-pill-x" onclick="removeTag('${cat}',${i})">×</button></span>`
+        `<span class="tag-pill${cls}">${esc(t)}${editing ? `<button class="tag-pill-x" onclick="removeTag('${cat}',${i})">×</button>` : ''}</span>`
       ).join('');
+
+      // Read-only outside edit mode: no add-input row, no remove buttons — same as what a friend viewing your profile would see.
+      const tagSection = (arr, cat, cls, inputId, placeholder) => {
+        const cloud = arr.length
+          ? `<div class="tags-cloud">${tags(arr, cat, cls)}</div>`
+          : (editing ? '' : `<p style="font-size:13px;color:var(--muted);margin:0">Nothing added yet.</p>`);
+        if (!editing) return cloud;
+        return `<div class="tag-input-row">
+          <input class="t-input" type="text" id="${inputId}" placeholder="${placeholder}" maxlength="40" onkeydown="if(event.key==='Enter')addTag('${cat}')" />
+          <button class="tag-add-btn" onclick="addTag('${cat}')">Add</button>
+        </div>${cloud}`;
+      };
 
       const wishItems = p.wishlist.map((w,i) => `
         <div class="wishlist-item-card">
           <span class="wishlist-item-name">${esc(w.name)}</span>
           ${w.price ? `<span class="wishlist-item-price">${esc(w.price)}</span>` : ''}
           ${w.url   ? `<a class="wishlist-item-link" href="${esc(w.url)}" target="_blank" rel="noopener">↗</a>` : ''}
-          <button class="wishlist-item-del" onclick="removeWish(${i})">×</button>
+          ${editing ? `<button class="wishlist-item-del" onclick="removeWish(${i})">×</button>` : ''}
         </div>`).join('');
+
+      const wishlistBody = editing
+        ? `<div class="wishlist-rows">
+            <div class="wishlist-row">
+              <input class="t-input" type="text" id="inp-wish-name" placeholder="Gift name" maxlength="80"
+                onkeydown="if(event.key==='Enter')addWish()" />
+              <input class="t-input wish-price" type="text" id="inp-wish-price" placeholder="~$50" maxlength="20"
+                onkeydown="if(event.key==='Enter')addWish()" />
+              <input class="t-input" type="url" id="inp-wish-url" placeholder="Link (optional)" maxlength="300"
+                onkeydown="if(event.key==='Enter')addWish()" />
+              <button class="tag-add-btn" onclick="addWish()">Add</button>
+            </div>
+            ${wishItems}
+          </div>`
+        : (p.wishlist.length ? `<div class="wishlist-rows">${wishItems}</div>` : `<p style="font-size:13px;color:var(--muted);margin:0">Nothing added yet.</p>`);
 
       return `
         <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
 
         <div class="profile-hdr">
-          <div class="profile-ph-wrap" onclick="triggerPhotoPick()">
+          <div class="profile-ph-wrap"${editing ? ` onclick="triggerPhotoPick()"` : ''}>
             <div class="profile-ph-circle" style="${!p.photo ? `background:${p.color||'#1A6FFF'}` : ''}">
               ${p.photo
                 ? `<img src="${p.photo}" alt="">`
                 : `<span style="color:#fff;font-size:34px;font-weight:700">${(p.name||'?')[0].toUpperCase()}</span>`
               }
             </div>
-            <div class="profile-ph-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            ${editing ? `<div class="profile-ph-overlay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>` : ''}
           </div>
+          ${editing ? `
+          <div class="profile-hdr-edit">
+            <input class="t-input" type="text" id="p-name" placeholder="Your name (e.g. Alex)" value="${esc(p.name)}" maxlength="40"
+              style="text-align:center" onkeydown="if(event.key==='Enter')saveProfile()" />
+            <div style="position:relative;margin-top:8px">
+              <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(6,6,40,0.35);font-size:14px;pointer-events:none;user-select:none">@</span>
+              <input class="t-input" type="text" id="p-username" placeholder="username" value="${esc(p.username||'')}" maxlength="20"
+                style="padding-left:26px" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9._-]/g,'')" onkeydown="if(event.key==='Enter')saveProfile()" />
+            </div>
+            <p class="err" id="p-username-err" style="display:none">That username isn't available.</p>
+            <input class="t-input" type="text" id="p-bio" placeholder="Short bio (optional)" value="${esc(p.bio)}" maxlength="120"
+              style="margin-top:8px;text-align:center" onkeydown="if(event.key==='Enter')saveProfile()" />
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">Username is unique — friends can search you by this</div>
+          </div>
+          ` : `
           <div class="profile-hdr-name">${p.name ? esc(p.name) : '<span style="color:rgba(6,6,40,0.28);font-weight:500;font-size:15px">Add your name</span>'}</div>
           ${p.username ? `<div class="profile-hdr-username">@${esc(p.username)}</div>` : ''}
           ${p.bio ? `<div class="profile-hdr-bio">${esc(p.bio)}</div>` : ''}
+          `}
           <div class="profile-stats-row">
-            <div class="profile-stat"><span class="profile-stat-n">${_followerCount}</span><span class="profile-stat-l">Followers</span></div>
-            <div class="profile-stat"><span class="profile-stat-n">${_followingCount}</span><span class="profile-stat-l">Following</span></div>
+            <div class="profile-stat" onclick="openFollowModal('followers')" style="cursor:pointer"><span class="profile-stat-n">${_followerCount}</span><span class="profile-stat-l">Followers</span></div>
+            <div class="profile-stat" onclick="openFollowModal('following')" style="cursor:pointer"><span class="profile-stat-n">${_followingCount}</span><span class="profile-stat-l">Following</span></div>
           </div>
-          <button class="edit-profile-btn" onclick="document.getElementById('p-name').focus();document.getElementById('p-name').scrollIntoView({behavior:'smooth',block:'center'})">Edit Profile</button>
-        </div>
-
-        <div class="profile-section">
-          <div class="profile-section-hd">
-            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-            <div><div class="profile-section-title">About</div>
-            <div class="profile-section-desc">Your name and bio shown to friends</div></div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <input class="t-input" type="text" id="p-name" placeholder="Your name (e.g. Alex)" value="${esc(p.name)}" maxlength="40" />
-            <input class="t-input" type="text" id="p-bio" placeholder="Short bio (optional)" value="${esc(p.bio)}" maxlength="120" />
-            <div style="position:relative">
-              <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(6,6,40,0.35);font-size:14px;pointer-events:none;user-select:none">@</span>
-              <input class="t-input" type="text" id="p-username" placeholder="username" value="${esc(p.username||'')}" maxlength="20" style="padding-left:26px" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9._-]/g,'')" />
-            </div>
-            <div style="font-size:11px;color:var(--muted);margin-top:-4px;padding-left:2px">Unique — friends can search you by this</div>
-            <p class="err" id="p-username-err" style="display:none">That username isn't available.</p>
-          </div>
+          <button class="edit-profile-btn" id="edit-profile-btn" onclick="${editing ? 'saveProfile()' : 'startEditProfile()'}">${editing ? 'Save' : 'Edit Profile'}</button>
         </div>
 
         <div class="profile-section">
@@ -3222,12 +3679,7 @@
             <div><div class="profile-section-title">Favorite Brands</div>
             <div class="profile-section-desc">Brands you love — helps friends know your style</div></div>
           </div>
-          <div class="tag-input-row">
-            <input class="t-input" type="text" id="inp-brand" placeholder="e.g. Apple, Nike, Patagonia…" maxlength="40"
-              onkeydown="if(event.key==='Enter')addTag('brands')" />
-            <button class="tag-add-btn" onclick="addTag('brands')">Add</button>
-          </div>
-          <div class="tags-cloud">${tags(p.brands,'brands')}</div>
+          ${tagSection(p.brands, 'brands', '', 'inp-brand', 'e.g. Apple, Nike, Patagonia…')}
         </div>
 
         <div class="profile-section">
@@ -3236,12 +3688,7 @@
             <div><div class="profile-section-title">Interests & Hobbies</div>
             <div class="profile-section-desc">What you're into — photography, hiking, cooking…</div></div>
           </div>
-          <div class="tag-input-row">
-            <input class="t-input" type="text" id="inp-interest" placeholder="e.g. Photography, Hiking, Coffee…" maxlength="40"
-              onkeydown="if(event.key==='Enter')addTag('interests')" />
-            <button class="tag-add-btn" onclick="addTag('interests')">Add</button>
-          </div>
-          <div class="tags-cloud">${tags(p.interests,'interests')}</div>
+          ${tagSection(p.interests, 'interests', '', 'inp-interest', 'e.g. Photography, Hiking, Coffee…')}
         </div>
 
         <div class="profile-section">
@@ -3250,18 +3697,7 @@
             <div><div class="profile-section-title">Wishlist</div>
             <div class="profile-section-desc">Specific things you actually want</div></div>
           </div>
-          <div class="wishlist-rows">
-            <div class="wishlist-row">
-              <input class="t-input" type="text" id="inp-wish-name" placeholder="Gift name" maxlength="80"
-                onkeydown="if(event.key==='Enter')addWish()" />
-              <input class="t-input wish-price" type="text" id="inp-wish-price" placeholder="~$50" maxlength="20"
-                onkeydown="if(event.key==='Enter')addWish()" />
-              <input class="t-input" type="url" id="inp-wish-url" placeholder="Link (optional)" maxlength="300"
-                onkeydown="if(event.key==='Enter')addWish()" />
-              <button class="tag-add-btn" onclick="addWish()">Add</button>
-            </div>
-            ${wishItems}
-          </div>
+          ${wishlistBody}
         </div>
 
         <div class="profile-section">
@@ -3270,37 +3706,73 @@
             <div><div class="profile-section-title">Please Don't Get Me…</div>
             <div class="profile-section-desc">Saves friends from awkward misses</div></div>
           </div>
-          <div class="tag-input-row">
-            <input class="t-input" type="text" id="inp-dont" placeholder="e.g. Candles, Socks, Perfume…" maxlength="40"
-              onkeydown="if(event.key==='Enter')addTag('dontWant')" />
-            <button class="tag-add-btn" onclick="addTag('dontWant')">Add</button>
-          </div>
-          <div class="tags-cloud">${tags(p.dontWant,'dontWant',' bad')}</div>
+          ${tagSection(p.dontWant, 'dontWant', ' bad', 'inp-dont', 'e.g. Candles, Socks, Perfume…')}
         </div>
 
-        <div class="profile-section">
-          <div class="profile-section-hd">
-            <span class="profile-section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-            <div><div class="profile-section-title">Following</div>
-            <div class="profile-section-desc">People you follow — find them the perfect gift</div></div>
-          </div>
-          ${buildFriendsFeedHtml(_followingCache)}${renderFriends(_followingCache)}
-        </div>
-
-        <button class="save-profile-btn" id="save-profile-btn" onclick="saveProfile()">Save Profile</button>
         <button class="signout-btn" onclick="signOut()">Sign Out</button>
         <div style="height:32px"></div>`;
     }
 
-    /* ── FRIENDS RENDER ── */
-    function renderFriends(following) {
-      if (!following.length) return `<div class="profiles-empty">
-        <div class="profiles-empty-icon"></div>
-        <h3>Not following anyone yet</h3>
-        <p>Find people in the Search tab.</p>
-      </div>`;
+    /* ── FOLLOW MODAL (Followers / Following, toggleable) ── */
+    let followModalTab  = 'following';
+    let _followModalList = [];
 
-      const cards = following.map((f, fi) => {
+    function openFollowModal(tab) {
+      followModalTab = tab || 'following';
+      const ov = $('follow-modal-overlay');
+      ov.classList.remove('hidden');
+      requestAnimationFrame(() => ov.classList.add('visible'));
+      renderFollowModal();
+    }
+
+    function closeFollowModal() {
+      const ov = $('follow-modal-overlay');
+      ov.classList.remove('visible');
+      setTimeout(() => ov.classList.add('hidden'), 220);
+    }
+
+    function setFollowModalTab(tab) {
+      followModalTab = tab;
+      renderFollowModal();
+    }
+
+    async function renderFollowModal() {
+      $('follow-tab-followers').classList.toggle('active', followModalTab === 'followers');
+      $('follow-tab-following').classList.toggle('active', followModalTab === 'following');
+      const body = $('follow-modal-body');
+      body.innerHTML = `<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">Loading…</p>`;
+
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) { body.innerHTML = ''; return; }
+
+      if (followModalTab === 'following') {
+        const list = await loadFollowing(user.id);
+        _followModalList = list;
+        body.innerHTML = buildFriendsFeedHtml(list) + renderFollowCards(list, 'following');
+      } else {
+        const [list, { data: myFollowingRows }] = await Promise.all([
+          loadFollowers(user.id),
+          sb.from('follows').select('followee_id').eq('follower_id', user.id),
+        ]);
+        const followingIds = new Set((myFollowingRows || []).map(r => r.followee_id));
+        list.forEach(f => { f.iFollowThem = followingIds.has(f.userId); });
+        _followModalList = list;
+        body.innerHTML = renderFollowCards(list, 'followers');
+      }
+    }
+
+    function renderFollowCards(list, kind) {
+      if (!list.length) {
+        const title = kind === 'following' ? 'Not following anyone yet' : 'No followers yet';
+        const desc  = kind === 'following' ? 'Find people in the Search tab.' : 'Share your username so people can find you.';
+        return `<div class="profiles-empty">
+          <div class="profiles-empty-icon"></div>
+          <h3>${esc(title)}</h3>
+          <p>${esc(desc)}</p>
+        </div>`;
+      }
+
+      const cards = list.map((f, i) => {
         const p = f.profile;
         const initial = (p.name || '?')[0].toUpperCase();
         const brandTags  = (p.brands||[]).map(t=>`<span class="friend-tag">${esc(t)}</span>`).join('');
@@ -3312,6 +3784,12 @@
           ${w.price?`<span class="friend-wish-price">${esc(w.price)}</span>`:''}
           ${w.url?`<a class="friend-wish-link" href="${esc(w.url)}" target="_blank" rel="noopener">View →</a>`:''}
         </div>`).join('');
+
+        const actionBtn = kind === 'following'
+          ? `<button class="remove-friend-btn" onclick="unfollowUser(${i})">Unfollow</button>`
+          : (f.iFollowThem
+              ? `<button class="remove-friend-btn" disabled style="opacity:.5;cursor:default">Following</button>`
+              : `<button class="tag-add-btn" onclick="followBack(${i})">Follow back</button>`);
 
         return `<div class="friend-card">
           <div class="friend-card-header">
@@ -3329,8 +3807,8 @@
             ${(p.dontWant||[]).length?`<div><div class="friend-section-label">Avoid These</div><div class="friend-tags">${dontTags}</div></div>`:''}
           </div>
           <div class="friend-card-footer">
-            <button class="gift-friend-btn" onclick="giftFriend(${fi})">Find gifts for ${esc(p.name||'them')}</button>
-            <button class="remove-friend-btn" onclick="unfollowUser(${fi})">Unfollow</button>
+            <button class="gift-friend-btn" onclick="giftFriend(${i})">Find gifts for ${esc((p.name||'them').split(' ')[0])}</button>
+            ${actionBtn}
           </div>
         </div>`;
       }).join('');
@@ -3350,31 +3828,40 @@
       if (inp) inp.click();
     }
 
+    // Shared by the Profile page's photo picker and the sign-up wizard's optional photo step.
+    function cropImageToSquareDataUrl(file, size = 300) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const cropSize = Math.min(img.width, img.height);
+            const sx = (img.width - cropSize) / 2;
+            const sy = (img.height - cropSize) / 2;
+            ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, size, size);
+            resolve(canvas.toDataURL('image/jpeg', 0.82));
+          };
+          img.onerror = reject;
+          img.src = ev.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     function handlePhotoUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 300; canvas.height = 300;
-          const ctx = canvas.getContext('2d');
-          // Center-crop to square
-          const size = Math.min(img.width, img.height);
-          const sx = (img.width - size) / 2;
-          const sy = (img.height - size) / 2;
-          ctx.drawImage(img, sx, sy, size, size, 0, 0, 300, 300);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-          const p = loadMyProfile();
-          p.photo = dataUrl;
-          saveMyProfileLocal(p);
-          syncNavAvatar(p);
-          refreshMyProfile();
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+      cropImageToSquareDataUrl(file).then(dataUrl => {
+        const p = loadMyProfile();
+        p.photo = dataUrl;
+        saveMyProfileLocal(p);
+        syncNavAvatar(p);
+        refreshMyProfile();
+      });
     }
 
     function syncNavAvatar(p) {
@@ -3424,6 +3911,12 @@
       saveMyProfileLocal(p); refreshMyProfile();
     }
 
+    function startEditProfile() {
+      profileEditMode = true;
+      refreshMyProfile();
+      setTimeout(() => $('p-name')?.focus(), 0);
+    }
+
     async function saveProfile() {
       const color       = AVATAR_COLORS[profileColorIdx] || '#1A6FFF';
       const name        = $('p-name').value.trim();
@@ -3449,10 +3942,13 @@
       saveMyProfileLocal(p);
       syncNavAvatar(p);
       if (p.username) saveProfileToSupabase(p);
-      const btn = $('save-profile-btn');
-      btn.textContent = 'Saved ✓'; btn.classList.add('saved');
-      setTimeout(() => { btn.textContent = 'Save Profile'; btn.classList.remove('saved'); }, 1800);
-      refreshMyProfile();
+
+      const btn = $('edit-profile-btn');
+      if (btn) { btn.textContent = 'Saved ✓'; btn.disabled = true; }
+      setTimeout(() => {
+        profileEditMode = false;
+        refreshMyProfile();
+      }, 700);
     }
 
     function showProfileUsernameErr(msg) {
@@ -3534,12 +4030,24 @@
     }
 
     async function unfollowUser(idx) {
-      const target = _followingCache[idx];
+      const target = _followModalList[idx];
       if (!target) return;
       const { data: { user } } = await sb.auth.getUser();
       if (!user) return;
       await sb.from('follows').delete().eq('follower_id', user.id).eq('followee_id', target.userId);
-      renderMyProfileView();
+      renderFollowModal();
+      renderMyProfileView(); // refresh counts in the background
+    }
+
+    async function followBack(idx) {
+      const target = _followModalList[idx];
+      if (!target) return;
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const { error } = await sb.from('follows').insert({ follower_id: user.id, followee_id: target.userId });
+      if (error) { console.warn('Follow error:', error.message); return; }
+      renderFollowModal();
+      renderMyProfileView(); // refresh counts in the background
     }
 
     function goToMyRankings() {
@@ -3548,8 +4056,9 @@
     }
 
     function giftFriend(friendIdx) {
-      const friend = _followingCache[friendIdx]?.profile;
+      const friend = _followModalList[friendIdx]?.profile;
       if (!friend) return;
+      closeFollowModal();
 
       // Build rich recipient description from their profile
       const name = friend.name || 'my friend';
@@ -3633,6 +4142,17 @@
       // Only place models in the equatorial belt — top/bottom are wiring only
       if (Math.abs(positions[i].ny) > LAT_BAND) return;
       const model = gltf.scene;
+      // preloaded[i].scene is the SAME object reused every time the sphere restarts
+      // (e.g. after sign-out) — reset any scale/position/rotation left over from a
+      // previous placement and detach it from its old parent first, so the bounding-box
+      // measurement below reflects the model's true intrinsic size instead of a stale
+      // world-space transform (which caused everything to clump together on restart).
+      model.parent?.remove(model);
+      model.position.set(0, 0, 0);
+      model.scale.set(1, 1, 1);
+      model.rotation.set(0, 0, 0);
+      model.updateMatrixWorld(true);
+
       const box  = new THREE.Box3().setFromObject(model);
       const size = new THREE.Vector3(); box.getSize(size);
       model.scale.setScalar(0.55 / Math.max(size.x, size.y, size.z));
@@ -3642,6 +4162,7 @@
       const { nx, ny, nz } = positions[i];
       const g = new THREE.Group(); g.add(model);
       g.position.set(nx * SPHERE_R, ny * SPHERE_R, nz * SPHERE_R);
+      g.userData.ny = ny;
       sphereGroup.add(g);
     }
 
@@ -3761,6 +4282,8 @@
       }
 
       const easeOut = t => 1 - Math.pow(1 - t, 2);
+      // Slight overshoot-and-settle on the scale pop — reads as objects "arriving" rather than just appearing.
+      const easeOutBack = t => { const c1 = 1.25, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 
       if (sphereGroup) sphereGroup.visible = introPhase >= 2;
 
@@ -3770,14 +4293,22 @@
         if (textMat) textMat.opacity = easeOut(t);
         if (t >= 1) {
           introPhase = 2; introT = 0;
-          sphereMeshMats = [];
-          sphereGroup.traverse(child => {
-            if (child.isMesh) {
-              child.material = child.material.clone();
-              child.material.transparent = true;
-              child.material.opacity = 0;
-              sphereMeshMats.push(child.material);
-            }
+          // Each product node gets its own delay + fade/scale-in, instead of all 25 popping in unison.
+          // Equator-first (matches the connecting-line sort below) with a little jitter so it doesn't feel mechanical.
+          const groups = sphereGroup.children.filter(c => c.isGroup);
+          sphereMeshMats = groups.map(g => {
+            const mats = [];
+            g.traverse(child => {
+              if (child.isMesh) {
+                child.material = child.material.clone();
+                child.material.transparent = true;
+                child.material.opacity = 0;
+                mats.push(child.material);
+              }
+            });
+            g.scale.setScalar(0.4);
+            const delay = Math.abs(g.userData.ny || 0) * 0.45 + Math.random() * 0.2;
+            return { mats, group: g, delay, duration: 0.55 };
           });
           pendingTOs.push(setTimeout(() => {
             const tap = document.getElementById('landing-tap');
@@ -3786,14 +4317,16 @@
         }
       } else if (introPhase === 2) {
         introT += dt;
-        const t = Math.min(introT / 0.8, 1);
-        const op = easeOut(t);
-        if (lineMat) lineMat.opacity = 0.35 * op;
+        const PHASE2_LEN = 1.3;
+        if (lineMat) lineMat.opacity = 0.35 * easeOut(Math.min(introT / 1.1, 1));
         if (sphereMeshMats) {
-          sphereMeshMats.forEach(m => m.opacity = op);
-          if (t >= 1) sphereMeshMats = null;
+          sphereMeshMats.forEach(({ mats, group, delay, duration }) => {
+            const localT = Math.max(0, Math.min((introT - delay) / duration, 1));
+            mats.forEach(m => m.opacity = easeOut(localT));
+            group.scale.setScalar(0.4 + 0.6 * easeOutBack(localT));
+          });
         }
-        if (t >= 1) { introPhase = 3; }
+        if (introT >= PHASE2_LEN) { sphereMeshMats = null; introPhase = 3; }
       }
 
       ry += 0.003;
@@ -3821,6 +4354,62 @@
 
     window.__sphereImpl = { start, stop };
     if (window.__spherePending) { start(); }
+
+    // ── Discover page brand mark ──
+    // Static (non-animated) render of "PERSENT" in the same Optimer Bold 3D font used on the
+    // landing page, for the top-left corner of the Discover tab. Orthographic camera is sized
+    // exactly to the text's own bounding box, so the canvas fits the wordmark with no guessed
+    // scale/distance values — it self-corrects regardless of the font's actual glyph metrics.
+    function renderBrandMark() {
+      const canvas = document.getElementById('brand-canvas');
+      if (!canvas) return;
+      const displayH = 32;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      new FontLoader().load(
+        'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/fonts/optimer_bold.typeface.json',
+        font => {
+          const geo = new TextGeometry('PERSENT', {
+            font, size: 1, depth: 0.2, curveSegments: 6,
+            bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.02, bevelSegments: 2,
+          });
+          geo.computeBoundingBox();
+          const bb = geo.boundingBox;
+          const cx = (bb.max.x + bb.min.x) / 2, cy = (bb.max.y + bb.min.y) / 2, cz = (bb.max.z + bb.min.z) / 2;
+          geo.translate(-cx, -cy, -cz);
+
+          const textW = bb.max.x - bb.min.x;
+          const textH = bb.max.y - bb.min.y;
+          const halfW = textW / 2 + textW * 0.08;
+          const halfH = textH / 2 + textH * 0.35;
+
+          const displayW = Math.round(displayH * (halfW / halfH));
+          canvas.style.width  = displayW + 'px';
+          canvas.style.height = displayH + 'px';
+          canvas.width  = Math.round(displayW * dpr);
+          canvas.height = Math.round(displayH * dpr);
+
+          const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+          renderer.setPixelRatio(1);
+          renderer.setSize(canvas.width, canvas.height, false);
+          renderer.setClearColor(0x000000, 0);
+          renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+          const scene = new THREE.Scene();
+          scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+          const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(2, 3, 5); scene.add(key);
+
+          const camera = new THREE.OrthographicCamera(-halfW, halfW, halfH, -halfH, 0.1, 20);
+          camera.position.set(0, 0, 5);
+          camera.lookAt(0, 0, 0);
+
+          const mat = new THREE.MeshStandardMaterial({ color: 0x1A6FFF, metalness: 0.5, roughness: 0.2 });
+          scene.add(new THREE.Mesh(geo, mat));
+          renderer.render(scene, camera);
+        }
+      );
+    }
+    renderBrandMark();
   </script>
 </body>
 </html>
